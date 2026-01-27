@@ -1,4 +1,4 @@
-# VectorCam Interview Exercise (Enhanced)
+# VectorCam Interview Exercise
 
 This repository contains a simplified but intentionally imperfect review & annotation dashboard built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, and a small set of **shadcn/ui** components. The goal of the exercise is to evaluate your ability to reason about existing code, improve its structure, and design new features under realistic constraints.
 
