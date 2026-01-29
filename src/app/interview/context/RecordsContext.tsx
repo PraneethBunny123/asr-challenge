@@ -81,7 +81,7 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
           note: updates.note,
           timestamp: new Date().toISOString(),
         }
-        setHistory((prevHistory) => [...prevHistory, entry]);
+        setHistory((prevHistory) => [entry, ...prevHistory]);
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');

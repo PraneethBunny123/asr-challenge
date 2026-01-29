@@ -54,7 +54,7 @@ export default function RecordDetailDialog({
   ];
 
   const handleSave = async () => {
-    if((status === "flagged" || status === "needs_revision") && note === "") {
+    if((status === "flagged" || status === "needs_revision") && note.trim() === "") {
       setError("Please provide a note when flagging or requesting revisions.");
       return;
     }
@@ -125,10 +125,18 @@ export default function RecordDetailDialog({
         </div>
 
         <DialogFooter className="mt-6">
-          <Button variant="secondary" onClick={() => onClose() } disabled={saving}>
+          <Button 
+            variant="secondary" 
+            onClick={() => onClose() } 
+            disabled={saving}
+          >
             Close
           </Button>
-          <Button variant="default" onClick={handleSave} disabled={saving}>
+          <Button 
+            variant="default" 
+            onClick={handleSave} 
+            disabled={saving}
+          >
             {saving ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
