@@ -1,26 +1,12 @@
-import type { RecordStatus } from "../types";
-import { useRecords } from "../hooks/useRecords";
+import { useRecordStats } from "../hooks/useRecordStats";
 
 /**
  * RecordSummary computes derived counts by status from the current record set
  * provided by RecordsContext and renders them as a lightweight dashboard.
  */
 export default function RecordSummary() {
-  const { records } = useRecords();
-  // Compute counts for each status
-  const counts = records.reduce(
-    (acc, record) => {
-      acc[record.status] = (acc[record.status] ?? 0) + 1;
-      return acc;
-    },
-    {} as Record<RecordStatus, number>,
-  );
-  const statuses: RecordStatus[] = [
-    "pending",
-    "approved",
-    "flagged",
-    "needs_revision",
-  ];
+  const { statuses, statusCounts } = useRecordStats();
+
   return (
     <section aria-label="Record status summary" className="space-y-3">
       <div className="flex items-baseline justify-between">
@@ -33,7 +19,7 @@ export default function RecordSummary() {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {statuses.map((status) => {
-          const count = counts[status] ?? 0;
+          const count = statusCounts[status] ?? 0;
           return (
             <div
               key={status}
