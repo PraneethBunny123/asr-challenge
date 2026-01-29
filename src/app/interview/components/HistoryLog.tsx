@@ -1,4 +1,4 @@
-import { useRecords } from "../context/RecordsContext";
+import { useRecords } from "../hooks/useRecords";
 import { Button } from "@/components/ui/button";
 
 /**
