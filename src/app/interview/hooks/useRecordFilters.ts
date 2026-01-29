@@ -9,8 +9,9 @@ export function useRecordFilters() {
   const {records} = useRecords();
 
   const filteredRecords = useMemo(() => {
-    return records
-  }, [records])
+    if (filter === "all") return records;
+    return records.filter((r) => r.status === filter);
+  }, [records, filter])
 
   return {
     filteredRecords,
