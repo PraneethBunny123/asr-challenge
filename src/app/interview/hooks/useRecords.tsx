@@ -2,4 +2,11 @@
 // convenient access to the records context from components. See
 // `context/RecordsContext.tsx` for implementation details.
 
-export { useRecords } from "../context/RecordsContext";
+import { useContext } from "react";
+import { RecordsContext } from "../context/RecordsContext";
+
+export function useRecords() {
+    const ctx = useContext(RecordsContext)
+    if (!ctx) throw new Error('useRecords must be used within a RecordsProvider');
+    return ctx;
+}

@@ -1,5 +1,5 @@
 import type { RecordStatus } from "../types";
-import { useRecords } from "../context/RecordsContext";
+import { useRecords } from "../hooks/useRecords";
 
 /**
  * RecordSummary computes derived counts by status from the current record set
