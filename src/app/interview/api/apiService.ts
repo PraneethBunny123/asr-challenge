@@ -4,7 +4,7 @@ import type { RecordItem, RecordStatus } from "../types";
 export async function fetchRecords(): Promise<RecordItem[]> {
   const response = await fetch('/api/mock/records');
     if(!response.ok) {
-      throw new Error(`Failed to fetch records`);
+      throw new Error(`Failed to load records: ${response.statusText}`);
     }
 
   return response.json();
@@ -22,7 +22,7 @@ export async function updateRecord(
   })
 
   if (!response.ok) {
-    throw new Error(`Failed to update record`);
+    throw new Error(`Failed to update record: ${response.statusText}`);
   }
 
   return response.json();
