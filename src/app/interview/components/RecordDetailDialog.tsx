@@ -67,7 +67,7 @@ export default function RecordDetailDialog({
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
-      toast.error(error)
+      toast.error(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setSaving(false);
     }
@@ -90,15 +90,22 @@ export default function RecordDetailDialog({
           <div>
             <label className="block text-sm font-medium mb-1">Status</label>
             <Select
-              value={status}
+              value={status} 
               onValueChange={(value) => setStatus(value as RecordStatus)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger 
+                className="w-full"
+                role="select-trigger"  
+              >
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
                 {statusOptions.map((option) => (
-                  <SelectItem key={option} value={option}>
+                  <SelectItem 
+                    key={option} 
+                    value={option}
+                    role={`select-item-${option}`}
+                  >
                     {option}
                   </SelectItem>
                 ))}
@@ -115,13 +122,14 @@ export default function RecordDetailDialog({
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add a note..."
               className="min-h-24"
+              role="note-textarea"
             />
             <p className="mt-1 text-xs text-muted-foreground">
               Notes help other reviewers understand decisions.
             </p>
           </div>
 
-          {error && <p className="text-sm text-destructive">Error: {error}</p>}
+          {error && <p className="text-sm text-destructive" data-testid="validation-error">Error: {error}</p>}
         </div>
 
         <DialogFooter className="mt-6">
@@ -136,6 +144,7 @@ export default function RecordDetailDialog({
             variant="default" 
             onClick={handleSave} 
             disabled={saving}
+            role="save-button"
           >
             {saving ? "Saving..." : "Save"}
           </Button>

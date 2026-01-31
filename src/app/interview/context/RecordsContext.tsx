@@ -12,7 +12,7 @@ import type { RecordItem, RecordStatus, RecordHistoryEntry } from '../types';
 
 import { fetchRecords, updateRecord } from '../api/apiService';
 
-interface RecordsContextValue {
+export interface RecordsContextValue {
   records: RecordItem[];
   loading: boolean;
   error: string | null;
@@ -70,7 +70,7 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     try {
       const previousRecord = records.find((r) => r.id === id);
       const updatedRecord = await updateRecord(id, updates);
-
+      
       setRecords((prev) => prev.map((r) => (r.id === updatedRecord.id ? updatedRecord : r)));
 
       if(previousRecord && updates.status && previousRecord.status !== updates.status) {

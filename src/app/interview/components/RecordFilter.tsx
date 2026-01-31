@@ -32,7 +32,7 @@ export default function RecordFilter({ value, onChange }: RecordFilterProps) {
         value={value}
         onValueChange={(v) => onChange(v as "all" | RecordStatus)}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full" role="select-filter-trigger">
           <SelectValue placeholder="All" />
         </SelectTrigger>
         <SelectContent>
