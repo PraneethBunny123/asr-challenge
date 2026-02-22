@@ -16,6 +16,7 @@ export interface RecordsContextValue {
   records: RecordItem[];
   loading: boolean;
   error: string | null;
+
   /**
    * Update a record’s status and/or note. This function calls the mock API
    * and then updates local state. Errors are set on the context.

@@ -1,12 +1,16 @@
-import type { RecordItem, RecordStatus } from "../types";
+import type { RecordItem, RecordStatus, PaginatedRecordsResponse } from "../types";
 
 // Fetches the list of records from the mock API.
-export async function fetchRecords(): Promise<RecordItem[]> {
-  const response = await fetch('/api/mock/records');
+export async function fetchRecords(
+  page = 1,
+  limit = 6,
+): Promise<PaginatedRecordsResponse> {
+  const response = await fetch(`/api/mock/records?page=${page}&limit=${limit}`);
     if(!response.ok) {
       throw new Error(`Failed to load records: ${response.statusText}`);
     }
 
+  console.log(response.json())
   return response.json();
 }
 
