@@ -10,7 +10,6 @@ export async function fetchRecords(
       throw new Error(`Failed to load records: ${response.statusText}`);
     }
 
-  console.log(response.json())
   return response.json();
 }
 

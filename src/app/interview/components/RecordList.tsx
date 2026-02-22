@@ -9,6 +9,7 @@ import RecordDetailDialog from "./RecordDetailDialog";
 import RecordFilter from "./RecordFilter";
 import HistoryLog from "./HistoryLog";
 import RecordSummary from "./RecordSummary";
+import RecordPagination from "./RecordPagination";
 
 import { Button } from "@/components/ui/button";
 
@@ -19,7 +20,7 @@ import { Button } from "@/components/ui/button";
  * handling selection to open the detail dialog.
  */
 export default function RecordList() {
-  const { records, loading, error, refresh } = useRecords();
+  const { records, totalCount, loading, error, refresh } = useRecords();
   const { filteredRecords, selectedRecord, setSelectedRecord, filter, setFilter } = useRecordFilters();
 
   return (
@@ -30,7 +31,7 @@ export default function RecordList() {
             Records
           </h2>
           <p className="text-sm text-muted-foreground">
-            {records.length} total • {filteredRecords.length} showing
+            {totalCount} total • {filteredRecords.length} showing
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
@@ -55,6 +56,10 @@ export default function RecordList() {
           <RecordCard key={record.id} record={record} onSelect={setSelectedRecord} />
         ))}
       </div>
+
+      {/* RecordPagination replaces the below inline pagination */}
+      <RecordPagination />
+
       {selectedRecord && <RecordDetailDialog record={selectedRecord} onClose={() => setSelectedRecord(null)} />}
       {filteredRecords.length === 0 && !loading && !error && (
         <p className="text-sm text-muted-foreground">No records found.</p>

@@ -7,7 +7,7 @@
  * history log of status changes.
  */
 
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import type { RecordItem, RecordStatus, RecordHistoryEntry } from '../types';
 
 import { fetchRecords, updateRecord } from '../api/apiService';
@@ -17,6 +17,12 @@ export interface RecordsContextValue {
   loading: boolean;
   error: string | null;
 
+  // pagination
+  page: number;
+  limit: number;
+  totalCount: number;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
   /**
    * Update a record’s status and/or note. This function calls the mock API
    * and then updates local state. Errors are set on the context.
@@ -48,19 +54,39 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
   const [history, setHistory] = useState<RecordHistoryEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // pagination
+  const [page, setPageState] = useState<number>(1);
+  const [limit, setLimitState] = useState<number>(6);
+  const [totalCount, setTotalCount] = useState<number>(0);
   
-  const refresh = async () => {
+  const refresh = useCallback(async (targetPage?: number, targetLimit?: number) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchRecords()
-      setRecords(response);
+      const response = await fetchRecords(targetPage ?? page, targetLimit ?? limit)
+      setRecords(response.records);
+      setTotalCount(response.totalCount)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
+  }, [page, limit])
+
+  useEffect(() => {
+    refresh();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit]);
+
+  const setPage= (newPage: number) => {
+    setPageState(newPage)
   }
+
+  const setLimit = (newLimit: number) => {
+    setLimitState(newLimit);
+    setPageState(1); 
+  };
 
   const update = async (
     id: string,
@@ -89,10 +115,6 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  useEffect(() => {
-    refresh();
-  }, []);
-
   const clearHistory = () => {
     setHistory([]);
   }
@@ -101,6 +123,11 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     records,
     loading,
     error,
+    page,
+    limit,
+    totalCount,
+    setPage,
+    setLimit,
     updateRecord: update,
     refresh,
     history,
