@@ -10,10 +10,10 @@ export default function HomePage() {
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-14">
         <p className="text-sm font-medium text-muted-foreground">
-          VectorCam Web Interview
+          VectorCam
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mt-1">
-          Review &amp; Annotation Workflow Exercise
+          Review &amp; Annotation Workflow
         </h1>
         <p className="text-base text-muted-foreground mt-4">
           This application is a simplified review and annotation dashboard
@@ -85,7 +85,7 @@ export default function HomePage() {
             href="/interview"
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
           >
-            Start the Interview Task →
+            Dashboard →
           </Link>
           <p className="text-xs text-muted-foreground">
             Tip: the mock API is in memory and resets when the server restarts.
