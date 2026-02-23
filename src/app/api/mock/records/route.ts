@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import type { RecordItem, RecordStatus } from "@/app/interview/types";
+import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/interview/types";
 
 // Sample dataset. Feel free to extend with more realistic examples.
-let records: RecordItem[] = [
+const records: RecordItem[] = [
   {
     id: "1",
     name: "Anopheles gambiae ♀",
     status: "pending",
     description:
       "Collected by CDC light trap near Nyansato village (Ghana), 12 Mar 2026. Indoor resting capture at 05:30. Wing venation suggests An. gambiae s.l.; awaiting PCR confirmation for s.s. vs coluzzii.",
+    version: 1,
   },
   {
     id: "2",
@@ -18,6 +19,7 @@ let records: RecordItem[] = [
     description:
       "Human landing catch (HLC) in Kagera region (Tanzania), 18 Mar 2026, 22:15. Distinctively banded legs and pale wing spots. Verified by senior entomologist.",
     note: "Morphology consistent with An. funestus s.s.; add to indoor-resting dataset.",
+    version: 1,
   },
   {
     id: "3",
@@ -26,6 +28,7 @@ let records: RecordItem[] = [
     description:
       "Pyrethrum spray catch in Mchinji (Malawi), 09 Mar 2026. Specimen abdomen damaged; blood meal analysis inconclusive.",
     note: "Image blurry; request re-photo and consider ELISA for bloodmeal if tissue sufficient.",
+    version: 1,
   },
   {
     id: "4",
@@ -34,6 +37,7 @@ let records: RecordItem[] = [
     description:
       "Larval dip from irrigated rice field near Kano (Nigeria), 21 Mar 2026. Head capsule and palmate hairs photographed; metadata incomplete.",
     note: "Missing water body type classification and turbidity; please add habitat details.",
+    version: 1,
   },
   {
     id: "5",
@@ -42,6 +46,7 @@ let records: RecordItem[] = [
     description:
       "Indoor resting collection, Bobo-Dioulasso (Burkina Faso), 16 Mar 2026. PCR (SINE200) confirms coluzzii. Clear maxillary palps and wing spots.",
     note: "Confirmed coluzzii by molecular assay; include in vector composition analysis.",
+    version: 1,
   },
   {
     id: "6",
@@ -49,6 +54,7 @@ let records: RecordItem[] = [
     status: "pending",
     description:
       "Sweep net capture near breeding site in Kisumu (Kenya), 10 Mar 2026. Plumose antennae visible; specimen intact. Awaiting species-level confirmation.",
+    version: 1,
   },
   {
     id: "7",
@@ -57,6 +63,7 @@ let records: RecordItem[] = [
     description:
       "Window exit trap, Nkhata Bay (Malawi), 13 Mar 2026. Possible mislabel: morphology closer to An. funestus group; needs expert review.",
     note: "Suspected mis-ID; cross-check funestus-group keys and reclassify if needed.",
+    version: 1,
   },
   {
     id: "8",
@@ -65,6 +72,7 @@ let records: RecordItem[] = [
     description:
       "Collected from temporary puddle, Tamale (Ghana), 08 Mar 2026. Photographs show egg raft but GPS accuracy low (±200m).",
     note: "Update coordinates and add microhabitat photo for verification.",
+    version: 1,
   },
   {
     id: "9",
@@ -72,6 +80,7 @@ let records: RecordItem[] = [
     status: "approved",
     description:
       "Light trap near irrigation canal, Gezira (Sudan), 19 Mar 2026. Diagnostic pale scaling on wings; specimen in good condition.",
+    version: 1,
   },
   {
     id: "10",
@@ -80,6 +89,7 @@ let records: RecordItem[] = [
     description:
       "HLC indoor, Savelugu (Ghana), 15 Mar 2026. PCR confirms s.s.; ELISA positive for human blood meal. Eligible for biting time analysis.",
     note: "Add to vector-human contact dataset (indoor, late evening).",
+    version: 1,
   },
   {
     id: "11",
@@ -87,6 +97,7 @@ let records: RecordItem[] = [
     status: "pending",
     description:
       "Outdoor resting capture, Kilifi (Kenya), 12 Mar 2026. Secondary vector; useful for zoophily assessment. Awaiting supervisor review.",
+    version: 1,
   },
   {
     id: "12",
@@ -95,6 +106,7 @@ let records: RecordItem[] = [
     description:
       "PSC in Muleba (Tanzania), 20 Mar 2026. Abdomen ruptured; parity determination not possible.",
     note: "Consider excluding from parity analysis; keep for species presence record only.",
+    version: 1,
   },
 ];
 
@@ -106,29 +118,59 @@ let records: RecordItem[] = [
  */
 
 // GET /api/mock/records
-export async function GET() {
-  return NextResponse.json(records);
+export async function GET(request: NextRequest) {
+  const {searchParams} = request.nextUrl
+
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+  const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') ?? '6', 10)))
+
+  const totalCount = records.length
+  const startindex = (page-1) * limit
+  const endIndex = startindex + limit
+  const paginatedRecords = records.slice(startindex, endIndex)
+
+  return NextResponse.json({records: paginatedRecords, totalCount});
 }
 
 // PATCH /api/mock/records
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, status, note } = body as {
+    const { id, status, note, version } = body as {
       id: string;
       status?: RecordStatus;
       note?: string;
+      version: number;
     };
-    const record = records.find((r) => r.id === id);
-    if (!record) {
+    const recordIndex = records.findIndex((r) => r.id === id);
+    if (recordIndex === -1) {
       return NextResponse.json(
         { error: `Record with id ${id} not found.` },
         { status: 404 },
       );
     }
-    if (status) record.status = status;
-    if (note !== undefined) record.note = note;
-    return NextResponse.json(record);
+
+    const record = records[recordIndex]
+
+    if(record.version !== version) {
+      const conflictBody: VersionConflictError = {
+        error: 'version_conflict',
+        serverRecord: record,
+      }
+      
+      return NextResponse.json(conflictBody, {status: 409})
+    }
+
+    const updatedRecord: RecordItem = {
+      ...record,
+      ...(status !== undefined && { status }),
+      ...(note !== undefined && { note }),
+      version: record.version + 1,
+    }
+
+    records[recordIndex] = updatedRecord
+
+    return NextResponse.json(updatedRecord);
   } catch (error) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

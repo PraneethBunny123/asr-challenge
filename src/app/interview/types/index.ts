@@ -11,6 +11,8 @@ export interface RecordItem {
   status: RecordStatus;
   description: string;
   note?: string;
+
+  version: number; // For concurrency control, incremented on each update
 }
 
 /**
@@ -31,4 +33,16 @@ export interface RecordHistoryEntry {
   note?: string;
   /** ISO timestamp when the update occurred */
   timestamp: string;
+}
+
+/** Shape returned by GET /api/mock/records?page&limit */
+export interface PaginatedRecordsResponse {
+  records: RecordItem[];
+  totalCount: number;
+}
+
+/** Shape of a 409 conflict response body */
+export interface VersionConflictError {
+  error: 'version_conflict';
+  serverRecord: RecordItem;
 }
