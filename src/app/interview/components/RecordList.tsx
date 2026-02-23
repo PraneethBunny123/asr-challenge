@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
  * handling selection to open the detail dialog.
  */
 export default function RecordList() {
-  const { records, totalCount, loading, error, refresh } = useRecords();
+  const { totalCount, loading, error, refresh } = useRecords();
   const { filteredRecords, selectedRecord, setSelectedRecord, filter, setFilter } = useRecordFilters();
 
   return (
