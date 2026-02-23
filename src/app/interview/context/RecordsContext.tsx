@@ -10,7 +10,7 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import type { RecordItem, RecordStatus, RecordHistoryEntry } from '../types';
 
-import { fetchRecords, updateRecord } from '../api/apiService';
+import { fetchRecords, updateRecord, VersionConflictApiError } from '../api/apiService';
 
 export interface RecordsContextValue {
   records: RecordItem[];
@@ -27,7 +27,7 @@ export interface RecordsContextValue {
    * Update a record’s status and/or note. This function calls the mock API
    * and then updates local state. Errors are set on the context.
    */
-  updateRecord: (id: string, updates: { status?: RecordStatus; note?: string }) => Promise<void>;
+  updateRecord: (id: string, updates: { status?: RecordStatus; note?: string, version: number }) => Promise<void>;
   /**
    * Refresh the list of records from the API. Useful after a mutation
    * or when you need the latest state.
@@ -90,17 +90,28 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
 
   const update = async (
     id: string,
-    updates: { status?: RecordStatus; note?: string }
+    updates: { status?: RecordStatus; note?: string, version: number }
   ) => {
     setError(null);
 
+    const previousRecord = records.find((r) => r.id === id);
+    if (!previousRecord) {
+      throw new Error(`Record ${id} not found`);
+    }
+
+    // Apply optimistic update immediately
+    const optimisticRecord: RecordItem = {
+      ...previousRecord,
+      ...updates,
+      version: previousRecord.version, // keep old version until server confirms
+    };
+    setRecords((prev) => prev.map((r) => (r.id === id ? optimisticRecord : r)));
+    
     try {
-      const previousRecord = records.find((r) => r.id === id);
       const updatedRecord = await updateRecord(id, updates);
-      
       setRecords((prev) => prev.map((r) => (r.id === updatedRecord.id ? updatedRecord : r)));
 
-      if(previousRecord && updates.status && previousRecord.status !== updates.status) {
+      if(updates.status && previousRecord.status !== updates.status) {
         const entry: RecordHistoryEntry = {
           id,
           previousStatus: previousRecord.status,
@@ -110,8 +121,18 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
         }
         setHistory((prevHistory) => [entry, ...prevHistory]);
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
+    } catch (err) {
+      // Rollback optimistic change
+      setRecords((prev) => prev.map((r) => (r.id === id ? previousRecord : r)));
+
+      if (err instanceof VersionConflictApiError) {
+        // Swap in the authoritative server record so the UI reflects reality
+        setRecords((prev) => prev.map((r) => (r.id === id ? err.serverRecord : r)));
+        // Re-throw so the dialog can surface conflict UI
+        throw err;
+      }
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      throw err
     }
   }
 

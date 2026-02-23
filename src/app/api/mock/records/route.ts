@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import type { RecordItem, RecordStatus } from "@/app/interview/types";
+import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/interview/types";
 
 // Sample dataset. Feel free to extend with more realistic examples.
 const records: RecordItem[] = [
@@ -136,21 +136,41 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, status, note } = body as {
+    const { id, status, note, version } = body as {
       id: string;
       status?: RecordStatus;
       note?: string;
+      version: number;
     };
-    const record = records.find((r) => r.id === id);
-    if (!record) {
+    const recordIndex = records.findIndex((r) => r.id === id);
+    if (recordIndex === -1) {
       return NextResponse.json(
         { error: `Record with id ${id} not found.` },
         { status: 404 },
       );
     }
-    if (status) record.status = status;
-    if (note !== undefined) record.note = note;
-    return NextResponse.json(record);
+
+    const record = records[recordIndex]
+
+    if(record.version !== version) {
+      const conflictBody: VersionConflictError = {
+        error: 'version_conflict',
+        serverRecord: record,
+      }
+      
+      return NextResponse.json(conflictBody, {status: 409})
+    }
+
+    const updatedRecord: RecordItem = {
+      ...record,
+      ...(status !== undefined && { status }),
+      ...(note !== undefined && { note }),
+      version: record.version + 1,
+    }
+
+    records[recordIndex] = updatedRecord
+
+    return NextResponse.json(updatedRecord);
   } catch (error) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

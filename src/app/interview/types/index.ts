@@ -12,7 +12,7 @@ export interface RecordItem {
   description: string;
   note?: string;
 
-  version?: number; // For concurrency control, incremented on each update
+  version: number; // For concurrency control, incremented on each update
 }
 
 /**
