@@ -21,7 +21,7 @@ export default function RecordPagination() {
       className="flex items-center justify-between pt-4"
     >
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        Showing {from}–{to} of {totalCount}
+        Showing {from}-{to} of {totalCount}
       </p>
 
       <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ const sample: RecordItem = {
   name: "Specimen A",
   description: "Collected near river bank",
   status: "pending",
+  version: 1,
 };
 
 describe("RecordCard", () => {
