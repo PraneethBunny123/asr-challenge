@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/interview/types";
+
+import { eq, sql } from 'drizzle-orm';
+import { db } from '@/index';
+import { recordsTable, recordHistoryTable } from '@/db/schema';
+import {toRecordItem} from '@/db/mappers';
 
 // Sample dataset. Feel free to extend with more realistic examples.
 export const records: RecordItem[] = [
@@ -123,13 +127,28 @@ export async function GET(request: NextRequest) {
 
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') ?? '6', 10)))
+  const offset = (page-1) * limit
 
+  const [rows, [{ count }]] = await Promise.all([
+    db
+      .select()
+      .from(recordsTable)
+      .orderBy(sql<number>`cast(${recordsTable.id} as integer)`)
+      .limit(limit)
+      .offset(offset),
+
+    db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(recordsTable),
+  ]);
+
+  // In-memory records and pagination
   const totalCount = records.length
   const startindex = (page-1) * limit
   const endIndex = startindex + limit
   const paginatedRecords = records.slice(startindex, endIndex)
 
-  return NextResponse.json({records: paginatedRecords, totalCount});
+  return NextResponse.json({records: rows.map(toRecordItem), totalCount: count});
 }
 
 // PATCH /api/mock/records
