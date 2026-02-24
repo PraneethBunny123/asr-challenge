@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/interview/types";
 
 // Sample dataset. Feel free to extend with more realistic examples.
-const records: RecordItem[] = [
+export const records: RecordItem[] = [
   {
     id: "1",
     name: "Anopheles gambiae ♀",
