@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/interview/types";
 
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/index';
-import { recordsTable, recordHistoryTable } from '@/db/schema';
+import { recordsTable, recordHistoryTable, RecordDbStatus } from '@/db/schema';
 import {toRecordItem} from '@/db/mappers';
 
 // Sample dataset. Feel free to extend with more realistic examples.
@@ -152,45 +152,107 @@ export async function GET(request: NextRequest) {
 }
 
 // PATCH /api/mock/records
+
+// Store the record_history in db, history_log is tracked in db but doesn't persist in the UI when the session ends.
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, status, note, version } = body as {
+    const { id, status, note, version, previousStatus } = body as {
       id: string;
-      status?: RecordStatus;
+      status?: RecordDbStatus;
       note?: string;
       version: number;
+      previousStatus?: RecordDbStatus
     };
-    const recordIndex = records.findIndex((r) => r.id === id);
-    if (recordIndex === -1) {
-      return NextResponse.json(
-        { error: `Record with id ${id} not found.` },
-        { status: 404 },
-      );
-    }
 
-    const record = records[recordIndex]
+    const [updatedRecord] = await db
+      .update(recordsTable)
+      .set({
+        ...(status !== undefined && { status }),
+        ...(note   !== undefined && { note }),
+        version:   version + 1,
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(recordsTable.id, id),
+        eq(recordsTable.version, version)))
+      .returning();
+    
+    // record not found or version was stale.
+    if (!updatedRecord) {
+      const [currentRecord] = await db
+        .select()
+        .from(recordsTable)
+        .where(eq(recordsTable.id, id));
 
-    if(record.version !== version) {
-      const conflictBody: VersionConflictError = {
-        error: 'version_conflict',
-        serverRecord: record,
+      if (!currentRecord) {
+        return NextResponse.json({ error: `Record with id ${id} not found.` }, { status: 404 });
       }
-      
-      return NextResponse.json(conflictBody, {status: 409})
+
+      // version didn't match
+      const conflictBody: VersionConflictError = {
+        error:        'version_conflict',
+        serverRecord: toRecordItem(currentRecord),
+      };
+      return NextResponse.json(conflictBody, { status: 409 });
     }
 
-    const updatedRecord: RecordItem = {
-      ...record,
-      ...(status !== undefined && { status }),
-      ...(note !== undefined && { note }),
-      version: record.version + 1,
+    // Append a history row when the status actually changed.
+    if (status && previousStatus && previousStatus !== status) {
+      await db.insert(recordHistoryTable).values({
+        recordId:       id,
+        previousStatus: previousStatus,
+        newStatus:      status,
+        note:           note ?? null,
+      });
     }
 
-    records[recordIndex] = updatedRecord
-
-    return NextResponse.json(updatedRecord);
+    return NextResponse.json(toRecordItem(updatedRecord));
   } catch (error) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
+
+// Use this endpoint to not to store records history in db
+// export async function PATCH(request: NextRequest) {
+//   try {
+//     const body = await request.json();
+//     const { id, status, note, version } = body as {
+//       id: string;
+//       status?: RecordStatus;
+//       note?: string;
+//       version: number;
+//     };
+//     const recordIndex = records.findIndex((r) => r.id === id);
+//     if (recordIndex === -1) {
+//       return NextResponse.json(
+//         { error: `Record with id ${id} not found.` },
+//         { status: 404 },
+//       );
+//     }
+
+//     const record = records[recordIndex]
+
+//     if(record.version !== version) {
+//       const conflictBody: VersionConflictError = {
+//         error: 'version_conflict',
+//         serverRecord: record,
+//       }
+      
+//       return NextResponse.json(conflictBody, {status: 409})
+//     }
+
+//     const updatedRecord: RecordItem = {
+//       ...record,
+//       ...(status !== undefined && { status }),
+//       ...(note !== undefined && { note }),
+//       version: record.version + 1,
+//     }
+
+//     records[recordIndex] = updatedRecord
+
+//     return NextResponse.json(updatedRecord);
+//   } catch (error) {
+//     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+//   }
+// }

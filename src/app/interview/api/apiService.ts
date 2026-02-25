@@ -26,7 +26,7 @@ export async function fetchRecords(
 // Updates a record via the mock API.
 export async function updateRecord(
   id: string,
-  updates: { status?: RecordStatus; note?: string, version: number }
+  updates: { status?: RecordStatus; note?: string, version: number; previousStatus?: RecordStatus }
 ): Promise<RecordItem> {
   const response = await fetch('/api/mock/records', {
     method: 'PATCH',
