@@ -108,7 +108,7 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     setRecords((prev) => prev.map((r) => (r.id === id ? optimisticRecord : r)));
     
     try {
-      const updatedRecord = await updateRecord(id, updates);
+      const updatedRecord = await updateRecord(id, {...updates, previousStatus: previousRecord.status});
       setRecords((prev) => prev.map((r) => (r.id === updatedRecord.id ? updatedRecord : r)));
 
       if(updates.status && previousRecord.status !== updates.status) {

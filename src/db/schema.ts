@@ -63,3 +63,5 @@ export type NewRecordRow = typeof recordsTable.$inferInsert;
 
 export type RecordHistoryRow = typeof recordHistoryTable.$inferSelect;
 export type NewRecordHistoryRow = typeof recordHistoryTable.$inferInsert;
+
+export type RecordDbStatus = typeof recordsTable.$inferSelect['status']
