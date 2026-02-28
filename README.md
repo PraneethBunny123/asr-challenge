@@ -1,6 +1,6 @@
 # VectorCam
 
-This repository contains a simplified but intentionally imperfect review & annotation dashboard built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, and a small set of **shadcn/ui** components. The goal of the exercise is to evaluate your ability to reason about existing code, improve its structure, and design new features under realistic constraints.
+This repository contains a review & annotation dashboard built with **Next.js (App Router)**. 
 
 ## Running the project
 
@@ -11,20 +11,54 @@ This repository contains a simplified but intentionally imperfect review & annot
    npm install
    ```
 
-3. Start the development server:
+3. Database Setup:
+   
+   Replace DATABASE_URL in your .env
+
+   ```bash
+   DATABASE_URL=YOUR_DATABASE_URL
+   ```
+
+   Apply schema changes to the database
+
+    ```bash
+   npx drizzle-kit push
+   ```
+
+    Seed the db tables
+
+   ```bash
+   npx tsx src/db/seed.ts
+   ```
+
+4. Run with In-Memory Data:
+   
+   Replace GET endpoint return value to use in-memory records
+
+   ```bash
+   return NextResponse.json({records: paginatedRecords, totalCount});
+   ```
+   
+5. Start the development server:
 
    ```bash
    npm run dev
    ```
 
-4. Navigate to `http://localhost:3000` to access the app. The task lives under the `/interview` route.
+6. Navigate to `http://localhost:3000` to access the app. The dasboard lives under the `/interview` route.
 
 ## Context
 
-VectorCam is used by entomologists and public health program managers to review and annotate specimen data collected in the field. This exercise focuses on the **web dashboard** portion of the system (not the mobile capture pipeline). A **mock API** (`/api/mock/records`) serves an in‑memory list of records and supports `GET` and `PATCH` operations. Data resets whenever the server restarts.
+VectorCam is used by entomologists and public health program managers to review and annotate specimen data collected in the field. This exercise focuses on the **web dashboard** portion of the system. A **mock API** (`/api/mock/records`) serves an in‑memory list of records and supports `GET` and `PATCH` operations. 
 
 ## Phase 1 – Analyse & Refactor
 
 
 ## Phase 2 – Extend & Design 
+
+
+## Phase 3 – Pagination & Optimistic Concurrency
+
+
+## Phase 4 – Database Integration
 
