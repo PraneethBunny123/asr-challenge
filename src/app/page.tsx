@@ -17,7 +17,7 @@ export default function HomePage() {
         </h1>
         <p className="text-base text-muted-foreground mt-4">
           This application is a simplified review and annotation dashboard
-          inspired by VectorCam’s production system. Your goal is to improve an
+          inspired by VectorCam’s production system.  This version focuses on improving an
           intentionally imperfect implementation, design clean abstractions and
           extend it with realistic features using a mock API.
         </p>
@@ -82,7 +82,7 @@ export default function HomePage() {
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            href="/interview"
+            href="/dashboard"
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
           >
             Dashboard →

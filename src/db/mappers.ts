@@ -1,4 +1,4 @@
-import type { RecordItem, RecordHistoryEntry } from "@/app/interview/types";
+import type { RecordItem, RecordHistoryEntry } from "@/app/dashboard/types";
 import type { RecordRow, RecordHistoryRow } from "./schema";
 
 // Maps a raw Drizzle `RecordRow` to the `RecordItem` shape the client expects

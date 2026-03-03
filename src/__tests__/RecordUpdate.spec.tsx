@@ -1,9 +1,9 @@
 import { renderHook, act } from "@testing-library/react";
-import { RecordsProvider } from "@/app/interview/context/RecordsContext";
-import { useRecords } from "@/app/interview/hooks/useRecords";
-import * as api from "@/app/interview/api/apiService";
-import type { RecordItem } from "@/app/interview/types";
-import { VersionConflictApiError } from "@/app/interview/api/apiService";
+import { RecordsProvider } from "@/app/dashboard/context/RecordsContext";
+import { useRecords } from "@/app/dashboard/hooks/useRecords";
+import * as api from "@/app/dashboard/api/apiService";
+import type { RecordItem } from "@/app/dashboard/types";
+import { VersionConflictApiError } from "@/app/dashboard/api/apiService";
 import React from "react";
 
 vi.mock("@/app/interview/api/apiService");

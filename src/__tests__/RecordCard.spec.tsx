@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import RecordCard from "@/app/interview/components/RecordCard";
-import type { RecordItem } from "@/app/interview/types";
+import RecordCard from "@/app/dashboard/components/RecordCard";
+import type { RecordItem } from "@/app/dashboard/types";
 
 const sample: RecordItem = {
   id: "1",

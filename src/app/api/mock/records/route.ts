@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/interview/types";
+import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/dashboard/types";
 
 import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/index';
