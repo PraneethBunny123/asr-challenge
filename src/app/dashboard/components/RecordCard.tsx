@@ -11,7 +11,7 @@ import { Badge, badgeVariants } from "@/components/ui/badge";
 import type { VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 
-import type { RecordItem } from "@/app/interview/types";
+import type { RecordItem } from "@/app/dashboard/types";
 
 interface RecordCardProps {
   record: RecordItem;
