@@ -1,5 +1,6 @@
-import { RecordsProvider } from './context/RecordsContext';
-import RecordList from './components/RecordList';
+import { RecordsProvider } from "./context/RecordsContext";
+import RecordList from "./components/RecordList";
+import UserAvatar from "./components/UserAvatar";
 
 /**
  * The main interview page. It wraps the record list with the RecordsProvider
@@ -11,12 +12,18 @@ export default function InterviewPage() {
   return (
     <RecordsProvider>
       <div className="p-4 space-y-4">
-        <h1 className="text-2xl font-bold">Review &amp; Annotation Task</h1>
-        <p className="text-muted-foreground">
-          Use this interface to review incoming records, adjust their status,
-          and leave notes. The data is served by a mock API and stored in
-          memory.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Review &amp; Annotation Task</h1>
+            <p className="text-muted-foreground">
+              Use this interface to review incoming records, adjust their
+              status, and leave notes. The data is served by a mock API and
+              stored in memory.
+            </p>
+          </div>
+          <UserAvatar />
+        </div>
+
         <RecordList />
       </div>
     </RecordsProvider>
