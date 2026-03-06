@@ -84,7 +84,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           <p className="text-sm font-normal text-gray-600">
             {type === "sign-in"
               ? "Don't have an account?"
-              : "Already have an account"}
+              : "Already have an account?"}
           </p>
           <Link
             href={type === "sign-in" ? "/sign-up" : "/sign-in"}
