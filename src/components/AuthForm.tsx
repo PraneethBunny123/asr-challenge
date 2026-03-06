@@ -2,18 +2,27 @@
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldSet } from "@/components/ui/field";
+
+import ControllerInput from "./ControllerInput";
+
 import { authFormSchema } from "@/lib/utils";
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
-import Link from "next/link";
 import z from "zod";
-import ControllerInput from "./ControllerInput";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { signIn, signUp } from "@/lib/auth-client";
 
 interface AuthFormProps {
   type: string;
 }
 
 export default function AuthForm({ type }: AuthFormProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard"
 
   const formSchema = authFormSchema(type)
   type formValues = z.infer<typeof formSchema>
@@ -28,10 +37,35 @@ export default function AuthForm({ type }: AuthFormProps) {
     }
   })
 
-  function onSubmit(data: formValues) {
-    console.log(data);
+  async function onSubmit(data: formValues) {
+    if(type === 'sign-in') {
+      const {error} = await signIn.email({
+        email: data.email,
+        password: data.password
+      })
+
+      if(error) {
+        form.setError("root", { message: error.message ?? "Invalid email or password" })
+        return;
+      } 
+    } else {
+      const {error} = await signUp.email({
+        email: data.email,
+        password: data.password,
+        name: `${data.firstName} ${data.lastName}`,
+      })
+
+      if(error) {
+        form.setError("root", { message: error.message ?? "Could not create account. Please try again" })
+        return;
+      }
+    }
     
+    router.push(callbackUrl)
+    router.refresh()
   }
+
+  const isSubmitting = form.formState.isSubmitting
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6 space-y-12">
@@ -73,9 +107,18 @@ export default function AuthForm({ type }: AuthFormProps) {
             </FieldGroup>
           </FieldSet>
 
+          {form.formState.errors.root && (
+            <p className="mt-3 text-sm text-red-500" role="alert">
+              {form.formState.errors.root.message}
+            </p>
+          )}
+
           <Field>
-            <Button type="submit" className="mt-8">
-              {type === "sign-in" ? "Sign In" : "Sign Up"}
+            <Button type="submit" className="mt-8 w-full" disabled={isSubmitting}>
+              {isSubmitting ? 
+                type === "sign-in" ? "Signing in..." : "Creating account..." : 
+                type === "sign-in" ? "Sign In" : "Sign Up"
+              }
             </Button>
           </Field>
         </form>
