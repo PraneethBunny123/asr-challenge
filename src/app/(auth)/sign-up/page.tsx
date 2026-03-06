@@ -1,7 +1,10 @@
 import AuthForm from '@/components/AuthForm'
+import { Suspense } from 'react'
 
 export default function SignUp() {
   return (
-    <AuthForm type='sign-up'/>
+    <Suspense>
+      <AuthForm type='sign-up'/>
+    </Suspense>
   )
 }
