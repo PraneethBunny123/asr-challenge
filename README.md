@@ -11,24 +11,33 @@ This repository contains a review & annotation dashboard built with **Next.js (A
    npm install
    ```
 
-3. Database Setup:
+3. Database and Auth Setup:
    
-   Replace DATABASE_URL in your .env
+   Setup .env file
 
    ```bash
-   DATABASE_URL=YOUR_DATABASE_URL
+   DATABASE_URL=YOUR_DATABASE_URL # Skip to use in memory data
+   BETTER_AUTH_SECRET=YOUR_BETTER_AUTH_SECRET
+   BETTER_AUTH_URL=http://localhost:3000 # For prod use YOUR_PUBLIC_APP_URL
+   NEXT_PUBLIC_APP_URL=http://localhost:3000 # For prod use YOUR_PUBLIC_APP_URL
    ```
 
    Apply schema changes to the database
 
     ```bash
+   # For local development & quick prototyping 
    npx drizzle-kit push
+
+   # For production & reviewable SQL file (see docs for more info)
+   npx drizzle-kit generate
+
+   npx drizzle-kit migrate
    ```
 
     Seed the db tables
 
    ```bash
-   npx tsx src/db/seed.ts
+   npx tsx src/db/seed.ts # Skip to use in memory data
    ```
 
 4. Run with In-Memory Data:
@@ -45,7 +54,7 @@ This repository contains a review & annotation dashboard built with **Next.js (A
    npm run dev
    ```
 
-6. Navigate to `http://localhost:3000` to access the app. The dasboard lives under the `/interview` route.
+6. Navigate to `http://localhost:3000` to access the app. The dasboard lives under the `/dashboard` route.
 
 ## Context
 
@@ -61,4 +70,7 @@ VectorCam is used by entomologists and public health program managers to review 
 
 
 ## Phase 4 – Database Integration
+
+
+## Phase 5 – Authentication
 
