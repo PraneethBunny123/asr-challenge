@@ -1,10 +1,34 @@
+import PhaseCard from "@/components/PhaseCard";
 import Link from "next/link";
 
 /**
- * Landing page for the interview application. It introduces the context
- * and outlines both phases of the exercise. Candidates can navigate to the interview
- * task via the call to action.
+ * Landing page for the application. It introduces the context
+ * and outlines the phases.
  */
+
+const phases = [
+  {
+    title: "Phase 1: Analyse & Refactor",
+    description: "Organize the application by separating context, hooks, and UI components into clear, well-structured modules to improve maintainability and readability. Ensure that components properly handle different application states by adding loading indicators, error handling, and empty state messages wherever they are missing, so the user experience remains clear and responsive during data fetching, failures, or when no data is available."
+  },
+  {
+    title: "Phase 2: Extend & Design",
+    description: "Implement filtering by status, summary counts, and a history log to improve visibility and tracking. Add review actions such as approve, flag, and needs revision, and create a persist endpoint to save updates and ensure changes propagate across components. Design forms and interactions with proper validation to maintain data accuracy and a smooth user experience."
+  },
+  {
+    title: "Phase 3: Pagination & Optimistic Concurrency",
+    description: "Implemented both server-side and client-side pagination to efficiently manage large datasets. Handled optimistic concurrency by introducing a version number to track record updates, which helped prevent race conditions. This also allows users to detect stale server state and decide whether to proceed with updating the record or refresh the latest data."
+  },
+  {
+    title: "Phase 4: Database Integration",
+    description: "Integrated the application with serverless PostgreSQL, replacing in-memory data with a persistent database. Used Drizzle ORM with Neon serverless Postgres for efficient database interactions, and designed custom schemas for records and record history. The history data is stored in the database to support auditing and tracking changes over time."
+  },
+  {
+    title: "Phase 5: Authentication",
+    description: "Integrated Better Auth for authentication using the client-side SDK instead of server actions to simplify integration. Created custom schemas for authentication tables and stored them in Neon serverless PostgreSQL. Built sign-in and sign-up pages using React Hook Form with Zod validation to ensure secure and reliable form handling."
+  }
+]
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-background">
@@ -13,71 +37,21 @@ export default function HomePage() {
           VectorCam
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mt-1">
-          Review &amp; Annotation Workflow
+          Dashboard Workflow
         </h1>
         <p className="text-base text-muted-foreground mt-4">
           This application is a simplified review and annotation dashboard
-          inspired by VectorCam’s production system.  This version focuses on improving an
-          intentionally imperfect implementation, design clean abstractions and
-          extend it with realistic features using a mock API.
+          inspired by VectorCam&apos;s production system.  This version focuses on improving an
+          imperfect implementation, design clean abstractions and
+          extend it with realistic features.
         </p>
 
         <section className="mt-8 grid gap-6 md:grid-cols-2">
-          <div className="rounded-lg border bg-card p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">
-              Phase 1: Analyse &amp; Refactor
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Read and explain the existing components and hooks, identify
-              issues with naming, state management, error handling, and
-              separation of concerns. Refactor thoughtfully. The code has been
-              intentionally split across multiple files (context, hooks,
-              summary, filter and history) to encourage architectural thinking.
-            </p>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-              <li>
-                Organise context, hooks and UI components into clear modules
-              </li>
-              <li>Add loading, error and empty states where missing</li>
-              <li>
-                Explain how derived data (summary and history) is computed
-              </li>
-            </ul>
-          </div>
-          <div className="rounded-lg border bg-card p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">
-              Phase 2: Extend &amp; Design
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Extend the system with new features (e.g. filter by status,
-              summary counts, history log) and implement review actions
-              (approve, flag, needs revision). Persist updates via the mock API
-              and ensure changes propagate across components.
-            </p>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-              <li>Design forms and interactions with proper validation</li>
-              <li>Consider concurrency, audit trails and atomic updates</li>
-              <li>Discuss testing, scalability and edge cases</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="mt-10 rounded-lg border bg-card p-5">
-          <h2 className="text-lg font-semibold">Guidance &amp; Expectations</h2>
-          <div className="mt-3 grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
-            <div className="rounded-md bg-muted/40 p-3">
-              Think out loud, ask clarifying questions, and explain tradeoffs.
-            </div>
-            <div className="rounded-md bg-muted/40 p-3">
-              Optimise for clarity and correctness over finishing every detail.
-            </div>
-            <div className="rounded-md bg-muted/40 p-3">
-              Keep domain logic separate from UI where it makes sense.
-            </div>
-            <div className="rounded-md bg-muted/40 p-3">
-              Prefer small, safe refactors over big rewrites.
-            </div>
-          </div>
+          <PhaseCard {...phases[0]}/>
+          <PhaseCard {...phases[1]}/>
+          <PhaseCard {...phases[2]}/>
+          <PhaseCard {...phases[3]}/>
+          <PhaseCard {...phases[4]}/>
         </section>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -88,13 +62,12 @@ export default function HomePage() {
             Dashboard →
           </Link>
           <p className="text-xs text-muted-foreground">
-            Tip: the mock API is in memory and resets when the server restarts.
+            Tip: the mock API is in memory.
           </p>
         </div>
 
         <footer className="mt-14 border-t pt-6 text-xs text-muted-foreground">
-          This exercise uses a mock API and does not connect to production
-          systems.
+          This application uses Next.js 16+ App router
         </footer>
       </div>
     </main>

@@ -19,9 +19,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout for the interview app. Applies global styles and sets up
- * the body element. You can extend this file to include your providers
- * (e.g. themes) and navigation.
+ * Root layout for the dashboard app. Applies global styles and sets up
+ * the body element.
  */
 export default function RootLayout({
   children,
