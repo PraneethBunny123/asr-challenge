@@ -13,15 +13,20 @@ import RecordPagination from "./RecordPagination";
 
 import { Button } from "@/components/ui/button";
 
-
 /**
- * RecordList orchestrates the interview page by fetching records via
+ * RecordList orchestrates the dashboard page by fetching records via
  * RecordsContext, presenting summary counts, exposing a simple filter UI, and
  * handling selection to open the detail dialog.
  */
 export default function RecordList() {
   const { totalCount, loading, error, refresh } = useRecords();
-  const { filteredRecords, selectedRecord, setSelectedRecord, filter, setFilter } = useRecordFilters();
+  const {
+    filteredRecords,
+    selectedRecord,
+    setSelectedRecord,
+    filter,
+    setFilter,
+  } = useRecordFilters();
 
   return (
     <div className="space-y-6">
@@ -35,9 +40,7 @@ export default function RecordList() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
-          {/* RecordFilter replaces the below inline select */}
           <RecordFilter value={filter} onChange={setFilter} />
-
           <Button variant="ghost" onClick={() => refresh()} disabled={loading}>
             Reload
           </Button>
@@ -48,24 +51,30 @@ export default function RecordList() {
         <p className="text-sm text-muted-foreground">Loading records...</p>
       )}
 
-      {/* RecordSummary replaces the below inline summary */}
       <RecordSummary />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredRecords.map((record) => (
-          <RecordCard key={record.id} record={record} onSelect={setSelectedRecord} />
+          <RecordCard
+            key={record.id}
+            record={record}
+            onSelect={setSelectedRecord}
+          />
         ))}
       </div>
 
-      {/* RecordPagination replaces the below inline pagination */}
       <RecordPagination />
 
-      {selectedRecord && <RecordDetailDialog record={selectedRecord} onClose={() => setSelectedRecord(null)} />}
+      {selectedRecord && (
+        <RecordDetailDialog
+          record={selectedRecord}
+          onClose={() => setSelectedRecord(null)}
+        />
+      )}
       {filteredRecords.length === 0 && !loading && !error && (
         <p className="text-sm text-muted-foreground">No records found.</p>
       )}
 
-      {/* HistoryLog replaces the below inline history */}
       <HistoryLog />
     </div>
   );

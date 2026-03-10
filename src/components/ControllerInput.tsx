@@ -4,6 +4,7 @@ import z from "zod";
 import { Field, FieldError, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = authFormSchema("sign-up");
 
 type formValues = z.infer<typeof formSchema>;
