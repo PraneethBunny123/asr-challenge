@@ -39,30 +39,37 @@ export default function AuthForm({ type }: AuthFormProps) {
 
   async function onSubmit(data: formValues) {
     if(type === 'sign-in') {
-      const {error} = await signIn.email({
-        email: data.email,
-        password: data.password
-      })
-
-      if(error) {
-        form.setError("root", { message: error.message ?? "Invalid email or password" })
-        return;
-      } 
+      await signIn.email(
+        {
+          email: data.email,
+          password: data.password
+        },
+        {
+          onSuccess: () => {
+            window.location.href = callbackUrl
+          },
+          onError: (ctx) => {
+            form.setError("root", { message: ctx.error.message ?? "Invalid email or password" })
+          }
+        }
+      )
     } else {
-      const {error} = await signUp.email({
-        email: data.email,
-        password: data.password,
-        name: `${data.firstName} ${data.lastName}`,
-      })
-
-      if(error) {
-        form.setError("root", { message: error.message ?? "Could not create account. Please try again" })
-        return;
-      }
+      await signUp.email(
+        {
+          email: data.email,
+          password: data.password,
+          name: `${data.firstName} ${data.lastName}`,
+        },
+        {
+          onSuccess: () => {
+            window.location.href = callbackUrl
+          },
+          onError: (ctx) => {
+            form.setError("root", { message: ctx.error.message ?? "Could not create account. Please try again" })
+          }
+        }
+      )
     }
-    
-    router.push(callbackUrl)
-    router.refresh()
   }
 
   const isSubmitting = form.formState.isSubmitting
