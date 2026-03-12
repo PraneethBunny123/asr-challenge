@@ -5,34 +5,14 @@
  */
 
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import type { RecordItem, RecordStatus, RecordHistoryEntry } from "../types";
+import type { RecordItem, RecordStatus, RecordHistoryEntry, RecordsContextValue, CreateRecordInput } from "../types";
 
 import {
+  createRecord,
   fetchRecords,
   updateRecord,
   VersionConflictApiError,
 } from "../api/apiService";
-
-export interface RecordsContextValue {
-  records: RecordItem[];
-  loading: boolean;
-  error: string | null;
-
-  // pagination
-  page: number;
-  limit: number;
-  totalCount: number;
-  setPage: (page: number) => void;
-  setLimit: (limit: number) => void;
-
-  updateRecord: (
-    id: string,
-    updates: { status?: RecordStatus; note?: string; version: number },
-  ) => Promise<void>;
-  refresh: () => Promise<void>;
-  history: RecordHistoryEntry[];
-  clearHistory: () => void;
-}
 
 export const RecordsContext = createContext<RecordsContextValue | null>(null);
 
@@ -80,6 +60,19 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     setLimitState(newLimit);
     setPageState(1);
   };
+
+  const create = async (input: CreateRecordInput) => {
+    setError(null)
+
+    try {
+      await createRecord(input)
+      await refresh()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(message);
+      throw err
+    }
+  }
 
   const update = async (
     id: string,
@@ -149,6 +142,7 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     totalCount,
     setPage,
     setLimit,
+    createRecord: create,
     updateRecord: update,
     refresh,
     history,
