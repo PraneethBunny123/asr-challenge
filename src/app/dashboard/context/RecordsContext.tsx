@@ -62,14 +62,10 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const create = async (input: CreateRecordInput) => {
-    setError(null)
-
     try {
       await createRecord(input)
       await refresh()
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setError(message);
       throw err
     }
   }

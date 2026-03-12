@@ -40,7 +40,8 @@ export async function updateRecord(
   }
 
   if (!response.ok) {
-    throw new Error(`Failed to update record: ${response.statusText}`);
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error ?? `Failed to update record: ${response.statusText}`);
   }
 
   return response.json();
@@ -56,7 +57,8 @@ export async function createRecord(
   })
 
   if (!response.ok) {
-    throw new Error(`Failed to create record: ${response.statusText}`);
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error ?? `Failed to create record: ${response.statusText}`);
   }
 
   return response.json();

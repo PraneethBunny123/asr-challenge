@@ -88,9 +88,12 @@ export default function CreateRecordDialog({
           </FieldSet>
 
           {form.formState.errors.root && (
-            <p className="mt-3 text-sm text-red-500" role="alert">
-              {form.formState.errors.root.message}
-            </p>
+            <div 
+              className="rounded-md border border-destructive/40 bg-destructive/5 p-3 space-y-2 mt-3"
+              data-testid="validation-error"
+            >            
+              <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
+            </div>
           )}
 
           <DialogFooter className="mt-6 flex-col sm:flex-row gap-2">

@@ -34,6 +34,11 @@ export default function CreateInput({
           ) : (
             <Textarea id={name} placeholder={placeholder} {...field} />
           )}
+          {name === 'note' && (
+            <p className="text-xs text-muted-foreground">
+              Notes help other reviewers understand decisions.
+            </p>
+          )}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}

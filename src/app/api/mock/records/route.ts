@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
 
   if(!name.trim() || !description.trim()) {
     return NextResponse.json(
-      { error: 'name and description are required' },
+      { error: 'Name and Description are required' },
       { status: 400 },
     );
   }
