@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/dashboard/types";
 
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '@/index';
 import { recordsTable, recordHistoryTable, RecordDbStatus } from '@/db/schema';
 import {toRecordItem} from '@/db/mappers';
+import { randomUUID } from "crypto";
 
 // Sample dataset. Feel free to extend with more realistic examples.
 export const records: RecordItem[] = [
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
     db
       .select()
       .from(recordsTable)
-      .orderBy(sql<number>`cast(${recordsTable.id} as integer)`)
+      .orderBy(desc(recordsTable.createdAt))
       .limit(limit)
       .offset(offset),
 
@@ -151,8 +152,34 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({records: rows.map(toRecordItem), totalCount: count});
 }
 
-// PATCH /api/mock/records
+// POST /api/mock/records
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const { name, description, note } = body;
 
+  if(!name.trim() || !description.trim()) {
+    return NextResponse.json(
+      { error: 'name and description are required' },
+      { status: 400 },
+    );
+  }
+
+  const [createdRecord] = await db
+    .insert(recordsTable)
+    .values({
+      id: randomUUID(),
+      name: name.trim(),
+      description: description.trim(),
+      note: note?.trim() || null,
+      status: 'pending',
+      version: 1,
+    })
+    .returning()
+
+  return NextResponse.json(toRecordItem(createdRecord), { status: 201 });
+}
+
+// PATCH /api/mock/records
 // Store the record_history in db, history_log is tracked in db but doesn't persist in the UI when the session ends.
 export async function PATCH(request: NextRequest) {
   try {
@@ -191,7 +218,7 @@ export async function PATCH(request: NextRequest) {
 
       // version didn't match
       const conflictBody: VersionConflictError = {
-        error:        'version_conflict',
+        error: 'version_conflict',
         serverRecord: toRecordItem(currentRecord),
       };
       return NextResponse.json(conflictBody, { status: 409 });

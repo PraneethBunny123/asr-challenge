@@ -16,6 +16,9 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { createRecordSchema } from "@/lib/utils";
 import CreateInput from "@/components/CreateInput";
+import { useRecords } from "../hooks/useRecords";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type CreateRecordValues = z.infer<typeof createRecordSchema>;
 
@@ -26,13 +29,27 @@ interface CreateRecordDialogProps {
 export default function CreateRecordDialog({
   onClose,
 }: CreateRecordDialogProps) {
+  const {createRecord} = useRecords()
+  const [saving, setSaving] = useState(false)
+
   const form = useForm<CreateRecordValues>({
     resolver: zodResolver(createRecordSchema),
     defaultValues: { name: "", description: "", note: "" },
   });
 
   const onSubmit = async (data: CreateRecordValues) => {
-    console.log(data);
+    setSaving(true)
+    try {
+      await createRecord(data)
+      toast.success("Record created successfully")
+      onClose()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to create record";
+      form.setError("root", { message });
+      toast.error(message);
+    } finally {
+      setSaving(false)
+    }
   };
 
   return (
@@ -77,11 +94,11 @@ export default function CreateRecordDialog({
           )}
 
           <DialogFooter className="mt-6 flex-col sm:flex-row gap-2">
-            <Button variant="secondary" onClick={() => onClose()}>
+            <Button type="button" variant="secondary" onClick={() => onClose()} disabled={saving}>
               Close
             </Button>
 
-            <Button variant="default">Create Record</Button>
+            <Button type="submit" variant="default" disabled={saving}>{saving ? "Creating..." : "Create Record"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
