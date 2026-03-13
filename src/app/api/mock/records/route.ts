@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { RecordItem, RecordStatus, VersionConflictError } from "@/app/dashboard/types";
+import type {
+  RecordItem,
+  RecordStatus,
+  VersionConflictError,
+} from "@/app/dashboard/types";
 
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { db } from '@/index';
-import { recordsTable, recordHistoryTable, RecordDbStatus } from '@/db/schema';
-import {toRecordItem} from '@/db/mappers';
+import { and, desc, eq, sql, isNull } from "drizzle-orm";
+import { db } from "@/index";
+import { recordsTable, recordHistoryTable, RecordDbStatus } from "@/db/schema";
+import { toRecordItem } from "@/db/mappers";
 import { randomUUID } from "crypto";
 
 // Sample dataset. Feel free to extend with more realistic examples.
@@ -124,32 +128,40 @@ export const records: RecordItem[] = [
 
 // GET /api/mock/records
 export async function GET(request: NextRequest) {
-  const {searchParams} = request.nextUrl
+  const { searchParams } = request.nextUrl;
 
-  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
-  const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') ?? '6', 10)))
-  const offset = (page-1) * limit
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+  const limit = Math.max(
+    1,
+    Math.min(100, parseInt(searchParams.get("limit") ?? "6", 10)),
+  );
+  const offset = (page - 1) * limit;
 
   const [rows, [{ count }]] = await Promise.all([
     db
       .select()
       .from(recordsTable)
+      .where(isNull(recordsTable.deletedAt))
       .orderBy(desc(recordsTable.createdAt))
       .limit(limit)
       .offset(offset),
 
     db
       .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(recordsTable),
+      .from(recordsTable)
+      .where(isNull(recordsTable.deletedAt)),
   ]);
 
   // In-memory records and pagination
-  const totalCount = records.length
-  const startindex = (page-1) * limit
-  const endIndex = startindex + limit
-  const paginatedRecords = records.slice(startindex, endIndex)
+  const totalCount = records.length;
+  const startindex = (page - 1) * limit;
+  const endIndex = startindex + limit;
+  const paginatedRecords = records.slice(startindex, endIndex);
 
-  return NextResponse.json({records: rows.map(toRecordItem), totalCount: count});
+  return NextResponse.json({
+    records: rows.map(toRecordItem),
+    totalCount: count,
+  });
 }
 
 // POST /api/mock/records
@@ -157,9 +169,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { name, description, note } = body;
 
-  if(!name.trim() || !description.trim()) {
+  if (!name.trim() || !description.trim()) {
     return NextResponse.json(
-      { error: 'Name and Description are required' },
+      { error: "Name and Description are required" },
       { status: 400 },
     );
   }
@@ -171,10 +183,10 @@ export async function POST(request: NextRequest) {
       name: name.trim(),
       description: description.trim(),
       note: note?.trim() || null,
-      status: 'pending',
+      status: "pending",
       version: 1,
     })
-    .returning()
+    .returning();
 
   return NextResponse.json(toRecordItem(createdRecord), { status: 201 });
 }
@@ -182,62 +194,59 @@ export async function POST(request: NextRequest) {
 // PATCH /api/mock/records
 // Store the record_history in db, history_log is tracked in db but doesn't persist in the UI when the session ends.
 export async function PATCH(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, status, note, version, previousStatus } = body as {
-      id: string;
-      status?: RecordDbStatus;
-      note?: string;
-      version: number;
-      previousStatus?: RecordDbStatus
+  const body = await request.json();
+  const { id, status, note, version, previousStatus } = body as {
+    id: string;
+    status?: RecordDbStatus;
+    note?: string;
+    version: number;
+    previousStatus?: RecordDbStatus;
+  };
+
+  const [updatedRecord] = await db
+    .update(recordsTable)
+    .set({
+      ...(status !== undefined && { status }),
+      ...(note !== undefined && { note }),
+      version: version + 1,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(recordsTable.id, id), eq(recordsTable.version, version)))
+    .returning();
+
+  // record not found or version was stale.
+  if (!updatedRecord) {
+    const [currentRecord] = await db
+      .select()
+      .from(recordsTable)
+      .where(eq(recordsTable.id, id));
+
+    if (!currentRecord) {
+      return NextResponse.json(
+        { error: `Record with id ${id} not found.` },
+        { status: 404 },
+      );
+    }
+
+    // version didn't match
+    const conflictBody: VersionConflictError = {
+      error: "version_conflict",
+      serverRecord: toRecordItem(currentRecord),
     };
-
-    const [updatedRecord] = await db
-      .update(recordsTable)
-      .set({
-        ...(status !== undefined && { status }),
-        ...(note   !== undefined && { note }),
-        version:   version + 1,
-        updatedAt: new Date(),
-      })
-      .where(and(
-        eq(recordsTable.id, id),
-        eq(recordsTable.version, version)))
-      .returning();
-    
-    // record not found or version was stale.
-    if (!updatedRecord) {
-      const [currentRecord] = await db
-        .select()
-        .from(recordsTable)
-        .where(eq(recordsTable.id, id));
-
-      if (!currentRecord) {
-        return NextResponse.json({ error: `Record with id ${id} not found.` }, { status: 404 });
-      }
-
-      // version didn't match
-      const conflictBody: VersionConflictError = {
-        error: 'version_conflict',
-        serverRecord: toRecordItem(currentRecord),
-      };
-      return NextResponse.json(conflictBody, { status: 409 });
-    }
-
-    // Append a history row when the status actually changed.
-    if (status && previousStatus && previousStatus !== status) {
-      await db.insert(recordHistoryTable).values({
-        recordId:       id,
-        previousStatus: previousStatus,
-        newStatus:      status,
-        note:           note ?? null,
-      });
-    }
-
-    return NextResponse.json(toRecordItem(updatedRecord));
-  } catch (error) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    return NextResponse.json(conflictBody, { status: 409 });
   }
+
+  // Append a history row when the status actually changed.
+  if (status && previousStatus && previousStatus !== status) {
+    await db.insert(recordHistoryTable).values({
+      recordId: id,
+      previousStatus: previousStatus,
+      newStatus: status,
+      note: note ?? null,
+    });
+  }
+
+  return NextResponse.json(toRecordItem(updatedRecord));
 }
 
 // Use this endpoint to not to store records history in db
@@ -265,7 +274,7 @@ export async function PATCH(request: NextRequest) {
 //         error: 'version_conflict',
 //         serverRecord: record,
 //       }
-      
+
 //       return NextResponse.json(conflictBody, {status: 409})
 //     }
 

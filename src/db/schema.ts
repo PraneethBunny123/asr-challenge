@@ -27,12 +27,12 @@ export const recordsTable = pgTable("records", {
 
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (table) => [
-    // Heavily queried in filter + paginate operations
     index("idx_records_status").on(table.status),
-    // Stable sort column for consistent pagination
     index("idx_records_created_at").on(table.createdAt),
+    index("idx_records_deleted_at").on(table.deletedAt),
   ]
 );
 
@@ -50,9 +50,7 @@ export const recordHistoryTable = pgTable("record_history",{
     changedAt: timestamp("changed_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    // Per-record history lookups
     index("idx_record_history_record_id").on(table.recordId),
-    // Chronological ordering of the full audit log
     index("idx_record_history_changed_at").on(table.changedAt),
   ]
 );
