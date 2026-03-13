@@ -9,6 +9,7 @@ import type { RecordItem, RecordStatus, RecordHistoryEntry, RecordsContextValue,
 
 import {
   createRecord,
+  deleteRecord,
   fetchRecords,
   updateRecord,
   VersionConflictApiError,
@@ -125,6 +126,23 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const remove = async (id: string) => {
+    setError(null)
+    const snapshot = records
+
+    setRecords((prev) => prev.filter((r) => r.id !== id))
+    setTotalCount((prev) => prev-1)
+
+    try {
+      await deleteRecord(id)
+    } catch (err) {
+      setRecords(snapshot)
+      setTotalCount((prev) => prev+1)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+      throw err
+    }
+  }
+
   const clearHistory = () => {
     setHistory([]);
   };
@@ -140,6 +158,7 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     setLimit,
     createRecord: create,
     updateRecord: update,
+    deleteRecord: remove,
     refresh,
     history,
     clearHistory,

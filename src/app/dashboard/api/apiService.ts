@@ -63,3 +63,18 @@ export async function createRecord(
 
   return response.json();
 }
+
+export async function deleteRecord(
+  id: string
+): Promise<void> {
+  const response = await fetch('api/mock/records', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({id}),
+  })
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error ?? `Failed to delete record: ${response.statusText}`);
+  }
+}

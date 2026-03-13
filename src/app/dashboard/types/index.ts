@@ -60,6 +60,7 @@ export interface RecordsContextValue {
     id: string,
     updates: { status?: RecordStatus; note?: string; version: number },
   ) => Promise<void>;
+  deleteRecord: (id: string) => Promise<void>
   refresh: () => Promise<void>;
   history: RecordHistoryEntry[];
   clearHistory: () => void;
