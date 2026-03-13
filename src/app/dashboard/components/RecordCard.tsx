@@ -12,6 +12,8 @@ import type { VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 
 import type { RecordItem } from "@/app/dashboard/types";
+import { DeleteDialogIcon } from "./DeleteDialog";
+
 
 interface RecordCardProps {
   record: RecordItem;
@@ -59,7 +61,8 @@ export default function RecordCard({ record, onSelect }: RecordCardProps) {
           </p>
         </CardContent>
       )}
-      <CardFooter className="border-t pt-4 flex justify-end">
+      <CardFooter className="border-t pt-4 flex justify-between gap-2">
+        <DeleteDialogIcon name={record.name}/>
         <Button variant="secondary" onClick={() => onSelect(record)}>
           Review
         </Button>
