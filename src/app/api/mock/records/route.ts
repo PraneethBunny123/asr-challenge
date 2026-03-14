@@ -292,3 +292,30 @@ export async function PATCH(request: NextRequest) {
 //     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 //   }
 // }
+
+export async function DELETE(request: NextRequest) {
+  const body = await request.json();
+  const { id } = body;
+
+  if (!id) {
+    return NextResponse.json(
+      { error: "id is required. Select the record to delete" },
+      { status: 400 },
+    );
+  }
+
+  const [deletedRecord] = await db
+    .update(recordsTable)
+    .set({deletedAt: new Date()})
+    .where(and(eq(recordsTable.id, id), isNull(recordsTable.deletedAt)))
+    .returning();
+
+  if(!deletedRecord) {
+    return NextResponse.json(
+      { error: "Record not found or already deleted" }, 
+      { status: 404 }
+    );
+  }
+
+  return NextResponse.json({success: true, id});
+}

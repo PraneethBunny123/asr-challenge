@@ -62,7 +62,7 @@ export default function RecordCard({ record, onSelect }: RecordCardProps) {
         </CardContent>
       )}
       <CardFooter className="border-t pt-4 flex justify-between gap-2">
-        <DeleteDialogIcon name={record.name}/>
+        <DeleteDialogIcon name={record.name} id={record.id}/>
         <Button variant="secondary" onClick={() => onSelect(record)}>
           Review
         </Button>
