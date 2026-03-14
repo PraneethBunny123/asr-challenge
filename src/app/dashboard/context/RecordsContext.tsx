@@ -5,34 +5,15 @@
  */
 
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import type { RecordItem, RecordStatus, RecordHistoryEntry } from "../types";
+import type { RecordItem, RecordStatus, RecordHistoryEntry, RecordsContextValue, CreateRecordInput } from "../types";
 
 import {
+  createRecord,
+  deleteRecord,
   fetchRecords,
   updateRecord,
   VersionConflictApiError,
 } from "../api/apiService";
-
-export interface RecordsContextValue {
-  records: RecordItem[];
-  loading: boolean;
-  error: string | null;
-
-  // pagination
-  page: number;
-  limit: number;
-  totalCount: number;
-  setPage: (page: number) => void;
-  setLimit: (limit: number) => void;
-
-  updateRecord: (
-    id: string,
-    updates: { status?: RecordStatus; note?: string; version: number },
-  ) => Promise<void>;
-  refresh: () => Promise<void>;
-  history: RecordHistoryEntry[];
-  clearHistory: () => void;
-}
 
 export const RecordsContext = createContext<RecordsContextValue | null>(null);
 
@@ -80,6 +61,15 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     setLimitState(newLimit);
     setPageState(1);
   };
+
+  const create = async (input: CreateRecordInput) => {
+    try {
+      await createRecord(input)
+      await refresh()
+    } catch (err) {
+      throw err
+    }
+  }
 
   const update = async (
     id: string,
@@ -136,6 +126,23 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const remove = async (id: string) => {
+    setError(null)
+    const snapshot = records
+
+    setRecords((prev) => prev.filter((r) => r.id !== id))
+    setTotalCount((prev) => prev-1)
+
+    try {
+      await deleteRecord(id)
+    } catch (err) {
+      setRecords(snapshot)
+      setTotalCount((prev) => prev+1)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+      throw err
+    }
+  }
+
   const clearHistory = () => {
     setHistory([]);
   };
@@ -149,7 +156,9 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     totalCount,
     setPage,
     setLimit,
+    createRecord: create,
     updateRecord: update,
+    deleteRecord: remove,
     refresh,
     history,
     clearHistory,

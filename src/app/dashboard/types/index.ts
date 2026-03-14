@@ -34,3 +34,34 @@ export interface VersionConflictError {
   error: 'version_conflict';
   serverRecord: RecordItem;
 }
+
+/** Shape of the input required to create a new record */
+export interface CreateRecordInput {
+  name: string;
+  description: string;
+  note?: string;
+}
+
+/** Shape of the value provided by the RecordsContext */
+export interface RecordsContextValue {
+  records: RecordItem[];
+  loading: boolean;
+  error: string | null;
+
+  // pagination
+  page: number;
+  limit: number;
+  totalCount: number;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
+
+  createRecord: (input: CreateRecordInput) => Promise<void>
+  updateRecord: (
+    id: string,
+    updates: { status?: RecordStatus; note?: string; version: number },
+  ) => Promise<void>;
+  deleteRecord: (id: string) => Promise<void>
+  refresh: () => Promise<void>;
+  history: RecordHistoryEntry[];
+  clearHistory: () => void;
+}

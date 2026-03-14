@@ -12,6 +12,9 @@ import RecordSummary from "./RecordSummary";
 import RecordPagination from "./RecordPagination";
 
 import { Button } from "@/components/ui/button";
+import { Plus, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import CreateRecordDialog from "./CreateRecordDialog";
 
 /**
  * RecordList orchestrates the dashboard page by fetching records via
@@ -28,6 +31,8 @@ export default function RecordList() {
     setFilter,
   } = useRecordFilters();
 
+  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false)
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -42,7 +47,11 @@ export default function RecordList() {
         <div className="flex flex-col sm:flex-row gap-4">
           <RecordFilter value={filter} onChange={setFilter} />
           <Button variant="ghost" onClick={() => refresh()} disabled={loading}>
-            Reload
+            <RefreshCw className={loading ? "animate-spin" : ""}/>
+          </Button>
+          <Button variant="secondary" onClick={() => setShowCreateDialog(true)}>
+            <Plus />
+            New Record
           </Button>
         </div>
       </div>
@@ -64,6 +73,12 @@ export default function RecordList() {
       </div>
 
       <RecordPagination />
+
+      {showCreateDialog && (
+        <CreateRecordDialog 
+          onClose={() => setShowCreateDialog(false)}
+        />
+      )}
 
       {selectedRecord && (
         <RecordDetailDialog
