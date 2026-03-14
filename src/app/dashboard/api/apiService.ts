@@ -50,7 +50,7 @@ export async function updateRecord(
 export async function createRecord(
   input: CreateRecordInput
 ): Promise<RecordItem> {
-  const response = await fetch('api/mock/records', {
+  const response = await fetch('/api/mock/records', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
@@ -67,7 +67,7 @@ export async function createRecord(
 export async function deleteRecord(
   id: string
 ): Promise<void> {
-  const response = await fetch('api/mock/records', {
+  const response = await fetch('/api/mock/records', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({id}),

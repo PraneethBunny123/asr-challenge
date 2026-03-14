@@ -32,7 +32,8 @@ export function DeleteDialogIcon({name, id} : DeleteDialogIconProps) {
       await deleteRecord(id)
       toast.success(`Record: ${name} deleted successfully`)
     } catch (err) {
-      toast.error("Failed to delete record. Please try again")
+      const message = err instanceof Error ? err.message : "Failed to delete record"
+      toast.error(message)
     } finally {
       setDeleting(false)
     }

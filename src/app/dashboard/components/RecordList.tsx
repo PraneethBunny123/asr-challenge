@@ -55,7 +55,14 @@ export default function RecordList() {
           </Button>
         </div>
       </div>
-      {error && <p className="text-sm text-destructive">Error: {error}</p>}
+      {error && (
+        <div 
+          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 space-y-2"
+          data-testid="validation-error"
+        >            
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
       {loading && (
         <p className="text-sm text-muted-foreground">Loading records...</p>
       )}

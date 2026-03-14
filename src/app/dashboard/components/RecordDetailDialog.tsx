@@ -72,18 +72,16 @@ export default function RecordDetailDialog({
 
     try {
       await updateRecord(record.id, {status, note, version: versionOverrde ?? record.version});
-      toast.success("Record updated successfully");
+      toast.success(`Record ${record.name} updated successfully`);
       onClose();
     } catch (err) {
       if (err instanceof VersionConflictApiError) {
         // Surface the server record so the reviewer can see what changed
         setConflictRecord(err.serverRecord);
         setError("This record was modified by another reviewer. " + "Review the current server version below and retry if you want to overwrite it.");
-        toast.error("Version conflict: record was modified by another reviewer.");
       } else {
         const message = err instanceof Error ? err.message : "Unknown error";
         setError(message);
-        toast.error(message);
       }
     } finally {
       setSaving(false);

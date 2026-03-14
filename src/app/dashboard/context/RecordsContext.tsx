@@ -115,19 +115,14 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
 
       if (err instanceof VersionConflictApiError) {
         // Swap in the authoritative server record so the UI reflects reality
-        setRecords((prev) =>
-          prev.map((r) => (r.id === id ? err.serverRecord : r)),
-        );
-        // Re-throw so the dialog can surface conflict UI
+        setRecords((prev) => prev.map((r) => (r.id === id ? err.serverRecord : r)));
         throw err;
       }
-      setError(err instanceof Error ? err.message : "Unknown error");
       throw err;
     }
   };
 
   const remove = async (id: string) => {
-    setError(null)
     const snapshot = records
 
     setRecords((prev) => prev.filter((r) => r.id !== id))
@@ -137,8 +132,7 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
       await deleteRecord(id)
     } catch (err) {
       setRecords(snapshot)
-      setTotalCount((prev) => prev+1)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setTotalCount((prev) => prev + 1)
       throw err
     }
   }
