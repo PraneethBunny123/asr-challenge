@@ -23,7 +23,7 @@ import {toast} from "sonner"
 
 import type { RecordItem, RecordStatus } from "../types";
 import { useRecords } from "../hooks/useRecords";
-import { VersionConflictApiError } from "../api/apiService";
+import { RecordNotFoundError, VersionConflictApiError } from "../api/apiService";
 
 interface RecordDetailDialogProps {
   record: RecordItem;
@@ -75,7 +75,10 @@ export default function RecordDetailDialog({
       toast.success(`Record ${record.name} updated successfully`);
       onClose();
     } catch (err) {
-      if (err instanceof VersionConflictApiError) {
+      if (err instanceof RecordNotFoundError) {
+        toast.error(`"${record.name}" was deleted by another reviewer and has been removed.`);
+        onClose()
+      } else if (err instanceof VersionConflictApiError) {
         // Surface the server record so the reviewer can see what changed
         setConflictRecord(err.serverRecord);
         setError("This record was modified by another reviewer. " + "Review the current server version below and retry if you want to overwrite it.");
