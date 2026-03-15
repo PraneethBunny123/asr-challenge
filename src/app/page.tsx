@@ -26,6 +26,10 @@ const phases = [
   {
     title: "Phase 5: Authentication",
     description: "Integrated Better Auth for authentication using the client-side SDK instead of server actions to simplify integration. Created custom schemas for authentication tables and stored them in Neon serverless PostgreSQL. Built sign-in and sign-up pages using React Hook Form with Zod validation to ensure secure and reliable form handling."
+  },
+  {
+    title: "Phase 6: API Enhancements & Error Handling",
+    description: "Added POST and DELETE endpoints to support creating and removing records. Implemented a delete action in the UI with a delete icon and added a concurrency check to prevent deleting stale records. Also improved error handling by ensuring validation and server errors are displayed in the correct UI locations, providing clearer feedback to users."
   }
 ]
 
@@ -52,6 +56,7 @@ export default function HomePage() {
           <PhaseCard {...phases[2]}/>
           <PhaseCard {...phases[3]}/>
           <PhaseCard {...phases[4]}/>
+          <PhaseCard {...phases[5]}/>
         </section>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
