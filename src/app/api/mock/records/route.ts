@@ -211,7 +211,11 @@ export async function PATCH(request: NextRequest) {
       version: version + 1,
       updatedAt: new Date(),
     })
-    .where(and(eq(recordsTable.id, id), eq(recordsTable.version, version)))
+    .where(and(
+      eq(recordsTable.id, id), 
+      eq(recordsTable.version, version),
+      isNull(recordsTable.deletedAt)
+    ))
     .returning();
 
   // record not found or version was stale.
@@ -221,9 +225,9 @@ export async function PATCH(request: NextRequest) {
       .from(recordsTable)
       .where(eq(recordsTable.id, id));
 
-    if (!currentRecord) {
+    if (!currentRecord || currentRecord.deletedAt !== null) {
       return NextResponse.json(
-        { error: `Record with id ${id} not found.` },
+        { error: `Record not found or has been deleted` },
         { status: 404 },
       );
     }

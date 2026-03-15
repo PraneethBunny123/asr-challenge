@@ -46,7 +46,6 @@ export default function CreateRecordDialog({
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to create record";
       form.setError("root", { message });
-      toast.error(message);
     } finally {
       setSaving(false)
     }

@@ -11,6 +11,7 @@ import {
   createRecord,
   deleteRecord,
   fetchRecords,
+  RecordNotFoundError,
   updateRecord,
   VersionConflictApiError,
 } from "../api/apiService";
@@ -110,24 +111,26 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
         setHistory((prevHistory) => [entry, ...prevHistory]);
       }
     } catch (err) {
-      // Rollback optimistic change
+      // 404 errors
+      if (err instanceof RecordNotFoundError) {
+        setRecords((prev) => prev.filter((r) => r.id !== id));
+        setTotalCount((prev) => prev - 1);
+        throw err; 
+      }
+
+      // Rollback optimistic change for non 404 errors
       setRecords((prev) => prev.map((r) => (r.id === id ? previousRecord : r)));
 
+      // 409 errors
       if (err instanceof VersionConflictApiError) {
-        // Swap in the authoritative server record so the UI reflects reality
-        setRecords((prev) =>
-          prev.map((r) => (r.id === id ? err.serverRecord : r)),
-        );
-        // Re-throw so the dialog can surface conflict UI
+        setRecords((prev) => prev.map((r) => (r.id === id ? err.serverRecord : r)));
         throw err;
       }
-      setError(err instanceof Error ? err.message : "Unknown error");
       throw err;
     }
   };
 
   const remove = async (id: string) => {
-    setError(null)
     const snapshot = records
 
     setRecords((prev) => prev.filter((r) => r.id !== id))
@@ -136,9 +139,12 @@ export function RecordsProvider({ children }: { children: React.ReactNode }) {
     try {
       await deleteRecord(id)
     } catch (err) {
+      if (err instanceof RecordNotFoundError) {
+        throw err; 
+      }
+      
       setRecords(snapshot)
-      setTotalCount((prev) => prev+1)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setTotalCount((prev) => prev + 1)
       throw err
     }
   }
