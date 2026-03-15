@@ -58,7 +58,7 @@ This repository contains a review & annotation dashboard built with **Next.js (A
 
 ## Context
 
-VectorCam is used by entomologists and public health program managers to review and annotate specimen data collected in the field. This exercise focuses on the **web dashboard** portion of the system. A **mock API** (`/api/mock/records`) serves an in‑memory list of records and supports `GET` and `PATCH` operations. 
+VectorCam is used by entomologists and public health program managers to review and annotate specimen data collected in the field. This application focuses on the **web dashboard** portion of the system. A **mock API** (`/api/mock/records`) serves an in‑memory list of records. 
 
 ## Phase 1 – Analyse & Refactor
 
@@ -74,3 +74,5 @@ VectorCam is used by entomologists and public health program managers to review 
 
 ## Phase 5 – Authentication
 
+
+## Phase 6 – API Enhancements & Error Handling
