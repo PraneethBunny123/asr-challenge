@@ -27,7 +27,8 @@ export const auth = betterAuth({
         admin,
         reviewer,
         viewer
-      }
+      },
+      defaultRole: "viewer",
     })
   ]
 });
