@@ -1,6 +1,6 @@
 import { RecordsProvider } from "./context/RecordsContext";
 import RecordList from "./components/RecordList";
-import UserAvatar from "./components/UserAvatar";
+import UserAvatar from "@/components/UserAvatar";
 
 /**
  * The main Home page. It wraps the record list with the RecordsProvider
