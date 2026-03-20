@@ -2,7 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../index";
 import * as authSchema from "../db/authSchema"
-import { admin } from "better-auth/plugins"
+import { admin as adminPlugin } from "better-auth/plugins"
+import { ac, admin, reviewer, viewer } from "@/lib/permissions";
 
 
 export const auth = betterAuth({
@@ -20,6 +21,13 @@ export const auth = betterAuth({
     enabled: true, 
   },
   plugins: [
-    admin() 
+    adminPlugin({
+      ac,
+      roles: {
+        admin,
+        reviewer,
+        viewer
+      }
+    })
   ]
 });
