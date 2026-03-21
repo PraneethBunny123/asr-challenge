@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRole } from "@/app/dashboard/hooks/useRole";
 
 function getInitials(name: string) {
   const parts = name.trim().split(" ").filter(Boolean);
@@ -25,10 +26,15 @@ function getInitials(name: string) {
 export default function UserAvatar() {
   const router = useRouter();
   const { data: session } = useSession();
+  const {role, isAdmin} = useRole()
 
   const name = session?.user?.name ?? "";
   const email = session?.user?.email ?? "";
   const initials = getInitials(name);
+
+  function routeToAdmin() {
+    router.push("/admin");
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -53,8 +59,19 @@ export default function UserAvatar() {
           <span className="text-xs font-normal text-muted-foreground truncate">
             {email}
           </span>
+          <span className="text-xs text-muted-foreground capitalize mt-0.5">
+            {role}
+          </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {isAdmin && (
+          <DropdownMenuItem
+            onClick={routeToAdmin}
+            className="cursor-pointer"
+          >
+            Manage Users
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           onClick={handleSignOut}
           className="cursor-pointer"

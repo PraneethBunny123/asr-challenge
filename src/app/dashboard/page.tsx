@@ -11,8 +11,8 @@ import UserAvatar from "@/components/UserAvatar";
 export default function DashboardPage() {
   return (
     <RecordsProvider>
-      <div className="p-4 space-y-4">
-        <div className="flex items-center justify-between">
+      <main>
+        <div className="flex items-center justify-between space-y-4">
           <div>
             <h1 className="text-2xl font-bold mb-2">Review &amp; Annotation Task</h1>
             <p className="text-muted-foreground">
@@ -24,7 +24,7 @@ export default function DashboardPage() {
         </div>
 
         <RecordList />
-      </div>
+      </main>
     </RecordsProvider>
   );
 }

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import CreateRecordDialog from "./CreateRecordDialog";
+import { useRole } from "../hooks/useRole";
 
 /**
  * RecordList orchestrates the dashboard page by fetching records via
@@ -30,6 +31,7 @@ export default function RecordList() {
     filter,
     setFilter,
   } = useRecordFilters();
+  const {canCreate} = useRole()
 
   const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false)
 
@@ -49,10 +51,12 @@ export default function RecordList() {
           <Button variant="ghost" onClick={() => refresh()} disabled={loading}>
             <RefreshCw className={loading ? "animate-spin" : ""}/>
           </Button>
-          <Button variant="secondary" onClick={() => setShowCreateDialog(true)}>
-            <Plus />
-            New Record
-          </Button>
+          {canCreate && (
+            <Button variant="secondary" onClick={() => setShowCreateDialog(true)}>
+              <Plus />
+              New Record
+            </Button>
+          )}
         </div>
       </div>
       {error && (
