@@ -6,6 +6,8 @@ export type RecordStatus = 'pending' | 'approved' | 'flagged' | 'needs_revision'
 
 export type Action = "create" | "update" | "delete"
 
+export type AppRole = "viewer" | "reviewer" | "admin";
+
 export interface RecordItem {
   id: string;
   name: string;
