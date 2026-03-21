@@ -127,32 +127,41 @@ export const records: RecordItem[] = [
  * supports CRUD operations. 
  */
 
-async function requirePermission(action: Action) {
+async function requirePermission(
+  action: Action,
+): Promise<
+  | { session: Awaited<ReturnType<typeof auth.api.getSession>>; permissionError?: never }
+  | { permissionError: NextResponse; session?: never }
+> {
   const session = await auth.api.getSession({
-    headers: await headers()
-  })
+    headers: await headers(),
+  });
 
-  if(!session) {
-    return NextResponse.json(
-      {error: "Unauthorized"}, 
-      {status: 401}
-    )
+  if (!session) {
+    return {
+      permissionError: NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      ),
+    };
   }
 
-  const {error: permissonError} = await auth.api.userHasPermission({
+  const { error: permissonError } = await auth.api.userHasPermission({
     body: {
-      permissions: {record: [action]}
-    }
-  })
+      permissions: { record: [action] },
+    },
+  });
 
-  if(permissonError) {
-    return NextResponse.json(
-      { error: "You do not have permission to perform this action." },
-      { status: 403 }
-    )
+  if (permissonError) {
+    return {
+      permissionError: NextResponse.json(
+        { error: "You do not have permission to perform this action." },
+        { status: 403 },
+      ),
+    };
   }
 
-  return {session}
+  return { session };
 }
 
 // GET /api/mock/records
@@ -195,6 +204,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/mock/records
 export async function POST(request: NextRequest) {
+  const {permissionError} = await requirePermission("create") 
+
+  if(permissionError) return permissionError
+  
   const body = await request.json();
   const { name, description, note } = body;
 
@@ -223,6 +236,10 @@ export async function POST(request: NextRequest) {
 // PATCH /api/mock/records
 // Store the record_history in db, history_log is tracked in db but doesn't persist in the UI when the session ends.
 export async function PATCH(request: NextRequest) {
+  const {permissionError} = await requirePermission("update")
+
+  if(permissionError) return permissionError
+
   const body = await request.json();
   const { id, status, note, version, previousStatus } = body as {
     id: string;
@@ -327,6 +344,10 @@ export async function PATCH(request: NextRequest) {
 // }
 
 export async function DELETE(request: NextRequest) {
+  const {permissionError} = await requirePermission("delete")
+
+  if(permissionError) return permissionError
+
   const body = await request.json();
   const { id } = body;
 
