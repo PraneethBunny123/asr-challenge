@@ -148,7 +148,8 @@ async function requirePermission(
 
   const { error: permissonError } = await auth.api.userHasPermission({
     body: {
-      permissions: { record: [action] },
+      userId: session.user.id,
+      permissions: { "record": [action] },
     },
   });
 

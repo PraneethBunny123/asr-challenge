@@ -29,6 +29,13 @@
       "when": 1774040978310,
       "tag": "0003_add_rbac_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774110775423,
+      "tag": "0004_role_not_null",
+      "breakpoints": true
     }
   ]
 }
