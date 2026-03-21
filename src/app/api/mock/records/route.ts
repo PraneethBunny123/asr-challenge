@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type {
+  Action,
   RecordItem,
   RecordStatus,
   VersionConflictError,
@@ -10,6 +11,8 @@ import { db } from "@/index";
 import { recordsTable, recordHistoryTable, RecordDbStatus } from "@/db/schema";
 import { toRecordItem } from "@/db/mappers";
 import { randomUUID } from "crypto";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // Sample dataset. Feel free to extend with more realistic examples.
 export const records: RecordItem[] = [
@@ -120,11 +123,37 @@ export const records: RecordItem[] = [
 ];
 
 /*
- * Mock Records API for the interview exercise. This API stores records in
- * memory and supports reading and updating them. Each record has a status
- * and optional note. In-memory persistence means data resets when the
- * server restarts, which is acceptable.
+ * Mock Records API. This API stores records in Neon Postgres and 
+ * supports CRUD operations. 
  */
+
+async function requirePermission(action: Action) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+
+  if(!session) {
+    return NextResponse.json(
+      {error: "Unauthorized"}, 
+      {status: 401}
+    )
+  }
+
+  const {error: permissonError} = await auth.api.userHasPermission({
+    body: {
+      permissions: {record: [action]}
+    }
+  })
+
+  if(permissonError) {
+    return NextResponse.json(
+      { error: "You do not have permission to perform this action." },
+      { status: 403 }
+    )
+  }
+
+  return {session}
+}
 
 // GET /api/mock/records
 export async function GET(request: NextRequest) {
