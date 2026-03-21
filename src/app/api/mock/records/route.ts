@@ -146,17 +146,17 @@ async function requirePermission(
     };
   }
 
-  const { error: permissonError } = await auth.api.userHasPermission({
+  const result = await auth.api.userHasPermission({
     body: {
       userId: session.user.id,
-      permissions: { "record": [action] },
+      permissions: { record: [action] },
     },
   });
 
-  if (permissonError) {
+  if (!result?.success) {
     return {
       permissionError: NextResponse.json(
-        { error: "You do not have permission to perform this action." },
+        { error: "You do not have permission to perform this action. Request access from Admin" },
         { status: 403 },
       ),
     };
