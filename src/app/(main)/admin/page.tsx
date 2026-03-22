@@ -131,13 +131,14 @@ export default function AdminPage() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading users...</p>
       ) : (
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Current role</TableHead>
-                <TableHead>Change role</TableHead>
+                <TableHead className="w-36">Current role</TableHead>
+                <TableHead className="w-48">Change role</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -148,18 +149,18 @@ export default function AdminPage() {
                   <TableCell className="text-muted-foreground">
                     {user.email}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-36">
                     <Badge variant={roleBadgeVariant[user.role]}>
                       {user.role}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-48">
                     <Select 
                       defaultValue={user.role}
                       onValueChange={(v) => handleRoleChange(user.id, v as AppRole)}
                       disabled={updatingRole === user.id}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -175,6 +176,7 @@ export default function AdminPage() {
               ))}
             </TableBody>
           </Table>
+        </div>
       )}
     </div>
   );
