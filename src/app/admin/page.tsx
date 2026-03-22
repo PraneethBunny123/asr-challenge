@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -42,6 +43,7 @@ export default function AdminPage() {
 
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null)
 
   useEffect(() => {
     if (isPending) return;
@@ -85,8 +87,21 @@ export default function AdminPage() {
     fetchUsers();
   }, [isAdmin, router, isPending]);
 
-  async function handleRoleChange() {
+  async function handleRoleChange(userId: string, newRole: AppRole) {
     // role change logic
+    setUpdatingRole(userId)
+    const {error} = await authClient.admin.setRole({
+      userId,
+      role: newRole
+    })
+
+    if(error) {
+      toast.error(error.message || "Failed to update role")
+    } else {
+      setUsers((prevUser) => prevUser.map((u) => u.id === userId ? {...u, role: newRole} : u))
+      toast.success("Updated role successfully")
+    }
+    setUpdatingRole(null)
   }
 
   if (isPending) return null;
@@ -121,8 +136,8 @@ export default function AdminPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Change role</TableHead>
                 <TableHead>Current role</TableHead>
+                <TableHead>Change role</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -139,14 +154,20 @@ export default function AdminPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Select value={user.role}>
+                    <Select 
+                      defaultValue={user.role}
+                      onValueChange={(v) => handleRoleChange(user.id, v as AppRole)}
+                      disabled={updatingRole === user.id}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="viewer">viewer</SelectItem>
-                        <SelectItem value="reviewer">reviewer</SelectItem>
-                        <SelectItem value="admin">admin</SelectItem>
+                        <SelectGroup>
+                          <SelectItem value="viewer">viewer</SelectItem>
+                          <SelectItem value="reviewer">reviewer</SelectItem>
+                          <SelectItem value="admin">admin</SelectItem>
+                        </SelectGroup>
                       </SelectContent>
                     </Select>
                   </TableCell>
