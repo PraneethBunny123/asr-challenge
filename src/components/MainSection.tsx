@@ -14,7 +14,7 @@ export default function MainSection() {
         </h1>
         <p className="text-muted-foreground">
           Use this interface to review incoming records, adjust their status,
-          and leave notes. The data is served by a mock API.
+          and leave notes. 
         </p>
       </div>
       <Button

@@ -37,25 +37,31 @@ export default function RecordList() {
 
   return (
     <div className="space-y-6 mt-6">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
-            Records
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {totalCount} total • {filteredRecords.length} showing
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
+              Records
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {totalCount} total • {filteredRecords.length} showing
+            </p>
+          </div>
           <RecordFilter value={filter} onChange={setFilter} />
-          {canCreate && (
-            <Button variant="secondary" onClick={() => setShowCreateDialog(true)}>
-              <Plus />
-              New Record
-            </Button>
-          )}
         </div>
+
+        {canCreate && (
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowCreateDialog(true)}
+            className="w-full sm:w-auto"
+          >
+            <Plus />
+            New Record
+          </Button>
+        )}
       </div>
+
       {error && (
         <div 
           className="rounded-md border border-destructive/40 bg-destructive/5 p-3 space-y-2"
