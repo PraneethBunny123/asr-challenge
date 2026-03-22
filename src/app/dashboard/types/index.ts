@@ -69,3 +69,11 @@ export interface RecordsContextValue {
   history: RecordHistoryEntry[];
   clearHistory: () => void;
 }
+
+export interface UserRow {
+  id: string;
+  name: string;
+  email: string;
+  role: AppRole;
+  createdAt: Date;
+}

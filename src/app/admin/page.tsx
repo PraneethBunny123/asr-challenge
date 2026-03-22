@@ -1,12 +1,160 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRole } from "@/app/dashboard/hooks/useRole";
+import { useRouter } from "next/navigation";
+import { AppRole, UserRow } from "@/app/dashboard/types";
+import { authClient, useSession } from "@/lib/auth-client";
+import { toast } from "sonner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+
+const roleBadgeVariant: Record<
+  AppRole,
+  "secondary" | "default" | "destructive"
+> = {
+  viewer: "secondary",
+  reviewer: "default",
+  admin: "destructive",
+};
 
 export default function AdminPage() {
+  const router = useRouter();
+
+  const { isPending } = useSession();
+  const { isAdmin } = useRole();
+
+  const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isPending) return;
+
+    if (!isAdmin) {
+      router.replace("/dashboard");
+      return;
+    }
+
+    async function fetchUsers() {
+      setLoading(true);
+      try {
+        const { data, error } = await authClient.admin.listUsers({
+          query: {
+            limit: 20,
+          },
+        });
+
+        if (!data || error) {
+          toast.error("Failed to load users");
+          return;
+        }
+
+        const fetchedUsers = data.users.map((user) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role as AppRole,
+          createdAt: user.createdAt,
+        }));
+
+        setUsers(fetchedUsers);
+      } catch (err) {
+        toast.error("Something went wrong loading users");
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, [isAdmin, router, isPending]);
+
+  async function handleRoleChange() {
+    // role change logic
+  }
+
+  if (isPending) return null;
+  if (!isAdmin) return null;
+
   return (
-    <div className="flex flex-col">
-      Admin Page
-      <Link href="/dashboard">
-        Back to Dashboard
-      </Link>
+    <div className="p-6 space-y-6">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push("/dashboard")}
+        className="gap-1 text-muted-foreground hover:text-foreground -ml-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to dashboard
+      </Button>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          User Management
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage roles for all registered users. Changes take effect on their
+          next sign-in.
+        </p>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading users...</p>
+      ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Change role</TableHead>
+                <TableHead>Current role</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {user.email}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={roleBadgeVariant[user.role]}>
+                      {user.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Select value={user.role}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="viewer">viewer</SelectItem>
+                        <SelectItem value="reviewer">reviewer</SelectItem>
+                        <SelectItem value="admin">admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+      )}
     </div>
-  )
+  );
 }
