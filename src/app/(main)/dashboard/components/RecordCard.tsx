@@ -11,8 +11,9 @@ import { Badge, badgeVariants } from "@/components/ui/badge";
 import type { VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 
-import type { RecordItem } from "@/app/dashboard/types";
+import type { RecordItem } from "../types";
 import { DeleteDialogIcon } from "./DeleteDialog";
+import { useRole } from "../hooks/useRole";
 
 
 interface RecordCardProps {
@@ -37,6 +38,7 @@ const statusToVariant: Record<
 };
 
 export default function RecordCard({ record, onSelect }: RecordCardProps) {
+  const {canDelete} = useRole()
   return (
     <Card className="overflow-hidden hover:shadow-sm transition-shadow">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b">
@@ -62,7 +64,11 @@ export default function RecordCard({ record, onSelect }: RecordCardProps) {
         </CardContent>
       )}
       <CardFooter className="border-t pt-4 flex justify-between gap-2">
-        <DeleteDialogIcon name={record.name} id={record.id}/>
+        {canDelete ? (
+          <DeleteDialogIcon name={record.name} id={record.id} />
+        ) : (
+          <span /> // keeps the Review button right-aligned
+        )}
         <Button variant="secondary" onClick={() => onSelect(record)}>
           Review
         </Button>

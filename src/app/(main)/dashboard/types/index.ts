@@ -4,6 +4,10 @@
  */
 export type RecordStatus = 'pending' | 'approved' | 'flagged' | 'needs_revision';
 
+export type Action = "create" | "update" | "delete"
+
+export type AppRole = "viewer" | "reviewer" | "admin";
+
 export interface RecordItem {
   id: string;
   name: string;
@@ -64,4 +68,12 @@ export interface RecordsContextValue {
   refresh: () => Promise<void>;
   history: RecordHistoryEntry[];
   clearHistory: () => void;
+}
+
+export interface UserRow {
+  id: string;
+  name: string;
+  email: string;
+  role: AppRole;
+  createdAt: Date;
 }

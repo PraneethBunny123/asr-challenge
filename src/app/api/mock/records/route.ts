@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import type {
+  Action,
   RecordItem,
   RecordStatus,
   VersionConflictError,
-} from "@/app/dashboard/types";
+} from "@/app/(main)/dashboard/types";
 
 import { and, desc, eq, sql, isNull } from "drizzle-orm";
 import { db } from "@/index";
 import { recordsTable, recordHistoryTable, RecordDbStatus } from "@/db/schema";
 import { toRecordItem } from "@/db/mappers";
 import { randomUUID } from "crypto";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // Sample dataset. Feel free to extend with more realistic examples.
 export const records: RecordItem[] = [
@@ -120,11 +123,47 @@ export const records: RecordItem[] = [
 ];
 
 /*
- * Mock Records API for the interview exercise. This API stores records in
- * memory and supports reading and updating them. Each record has a status
- * and optional note. In-memory persistence means data resets when the
- * server restarts, which is acceptable.
+ * Mock Records API. This API stores records in Neon Postgres and 
+ * supports CRUD operations. 
  */
+
+async function requirePermission(
+  action: Action,
+): Promise<
+  | { session: Awaited<ReturnType<typeof auth.api.getSession>>; permissionError?: never }
+  | { permissionError: NextResponse; session?: never }
+> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return {
+      permissionError: NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      ),
+    };
+  }
+
+  const result = await auth.api.userHasPermission({
+    body: {
+      userId: session.user.id,
+      permissions: { record: [action] },
+    },
+  });
+
+  if (!result?.success) {
+    return {
+      permissionError: NextResponse.json(
+        { error: "You do not have permission to perform this action. Request access from Admin" },
+        { status: 403 },
+      ),
+    };
+  }
+
+  return { session };
+}
 
 // GET /api/mock/records
 export async function GET(request: NextRequest) {
@@ -166,6 +205,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/mock/records
 export async function POST(request: NextRequest) {
+  const {permissionError} = await requirePermission("create") 
+
+  if(permissionError) return permissionError
+  
   const body = await request.json();
   const { name, description, note } = body;
 
@@ -194,6 +237,10 @@ export async function POST(request: NextRequest) {
 // PATCH /api/mock/records
 // Store the record_history in db, history_log is tracked in db but doesn't persist in the UI when the session ends.
 export async function PATCH(request: NextRequest) {
+  const {permissionError} = await requirePermission("update")
+
+  if(permissionError) return permissionError
+
   const body = await request.json();
   const { id, status, note, version, previousStatus } = body as {
     id: string;
@@ -298,6 +345,10 @@ export async function PATCH(request: NextRequest) {
 // }
 
 export async function DELETE(request: NextRequest) {
+  const {permissionError} = await requirePermission("delete")
+
+  if(permissionError) return permissionError
+
   const body = await request.json();
   const { id } = body;
 

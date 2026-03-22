@@ -12,9 +12,10 @@ import RecordSummary from "./RecordSummary";
 import RecordPagination from "./RecordPagination";
 
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateRecordDialog from "./CreateRecordDialog";
+import { useRole } from "../hooks/useRole";
 
 /**
  * RecordList orchestrates the dashboard page by fetching records via
@@ -22,7 +23,7 @@ import CreateRecordDialog from "./CreateRecordDialog";
  * handling selection to open the detail dialog.
  */
 export default function RecordList() {
-  const { totalCount, loading, error, refresh } = useRecords();
+  const { totalCount, loading, error } = useRecords();
   const {
     filteredRecords,
     selectedRecord,
@@ -30,31 +31,37 @@ export default function RecordList() {
     filter,
     setFilter,
   } = useRecordFilters();
+  const {canCreate} = useRole()
 
   const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false)
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
-            Records
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {totalCount} total • {filteredRecords.length} showing
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4">
+    <div className="space-y-6 mt-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
+              Records
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {totalCount} total • {filteredRecords.length} showing
+            </p>
+          </div>
           <RecordFilter value={filter} onChange={setFilter} />
-          <Button variant="ghost" onClick={() => refresh()} disabled={loading}>
-            <RefreshCw className={loading ? "animate-spin" : ""}/>
-          </Button>
-          <Button variant="secondary" onClick={() => setShowCreateDialog(true)}>
+        </div>
+
+        {canCreate && (
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowCreateDialog(true)}
+            className="w-full sm:w-auto"
+          >
             <Plus />
             New Record
           </Button>
-        </div>
+        )}
       </div>
+
       {error && (
         <div 
           className="rounded-md border border-destructive/40 bg-destructive/5 p-3 space-y-2"
