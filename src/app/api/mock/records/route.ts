@@ -4,7 +4,7 @@ import type {
   RecordItem,
   RecordStatus,
   VersionConflictError,
-} from "@/app/dashboard/types";
+} from "@/app/(main)/dashboard/types";
 
 import { and, desc, eq, sql, isNull } from "drizzle-orm";
 import { db } from "@/index";
