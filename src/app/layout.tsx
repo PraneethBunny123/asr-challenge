@@ -32,11 +32,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen bg-background text-foreground p-6 lg:p-10">
           {children}
-        <Toaster />
-        </div>
-        
+          <Toaster />        
       </body>
     </html>
   );

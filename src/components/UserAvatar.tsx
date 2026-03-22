@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRole } from "@/app/dashboard/hooks/useRole";
+import { useRole } from "@/app/(main)/dashboard/hooks/useRole";
 
 function getInitials(name: string) {
   const parts = name.trim().split(" ").filter(Boolean);

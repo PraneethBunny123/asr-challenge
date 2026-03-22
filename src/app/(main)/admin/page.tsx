@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRole } from "@/app/dashboard/hooks/useRole";
+import { useRole } from "@/app/(main)/dashboard/hooks/useRole";
 import { useRouter } from "next/navigation";
-import { AppRole, UserRow } from "@/app/dashboard/types";
+import { AppRole, UserRow } from "@/app/(main)/dashboard/types";
 import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import {

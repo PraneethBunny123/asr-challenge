@@ -1,6 +1,6 @@
 import { RecordsProvider } from "./context/RecordsContext";
 import RecordList from "./components/RecordList";
-import UserAvatar from "@/components/UserAvatar";
+import MainSection from "@/components/MainSection";
 
 /**
  * The main Home page. It wraps the record list with the RecordsProvider
@@ -12,17 +12,7 @@ export default function DashboardPage() {
   return (
     <RecordsProvider>
       <main>
-        <div className="flex items-center justify-between space-y-4">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">Review &amp; Annotation Task</h1>
-            <p className="text-muted-foreground">
-              Use this interface to review incoming records, adjust their
-              status, and leave notes. The data is served by a mock API.
-            </p>
-          </div>
-          <UserAvatar />
-        </div>
-
+        <MainSection />
         <RecordList />
       </main>
     </RecordsProvider>
