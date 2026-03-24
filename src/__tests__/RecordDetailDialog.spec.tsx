@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor} from "@testing-library/react";
-import RecordDetailDialog from "@/app/dashboard/components/RecordDetailDialog";
-import { RecordsContext } from "@/app/dashboard/context/RecordsContext";
-import type { RecordItem } from "@/app/dashboard/types";
-import { VersionConflictApiError } from "@/app/dashboard/api/apiService";
+import RecordDetailDialog from "@/app/(main)/dashboard/components/RecordDetailDialog";
+import { RecordsContext } from "@/app/(main)/dashboard/context/RecordsContext";
+import type { RecordItem } from "@/app/(main)/dashboard/types";
+import { VersionConflictApiError } from "@/app/(main)/dashboard/api/apiService";
 
 const mockUpdate = vi.fn();
 const mockOnClose = vi.fn();

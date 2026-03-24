@@ -1,12 +1,12 @@
 import { renderHook, act } from "@testing-library/react";
-import { RecordsProvider } from "@/app/dashboard/context/RecordsContext";
-import { useRecords } from "@/app/dashboard/hooks/useRecords";
-import * as api from "@/app/dashboard/api/apiService";
-import type { RecordItem } from "@/app/dashboard/types";
-import { VersionConflictApiError } from "@/app/dashboard/api/apiService";
+import { RecordsProvider } from "@/app/(main)/dashboard/context/RecordsContext";
+import { useRecords } from "@/app/(main)/dashboard/hooks/useRecords";
+import * as api from "@/app/(main)/dashboard/api/apiService";
+import type { RecordItem } from "@/app/(main)/dashboard/types";
+import { VersionConflictApiError } from "@/app/(main)/dashboard/api/apiService";
 import React from "react";
 
-vi.mock("@/app/interview/api/apiService");
+vi.mock("@/app/(main)/dashboard/api/apiService");
 
 
 const sampleRecords: RecordItem[] = [

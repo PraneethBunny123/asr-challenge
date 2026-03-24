@@ -46,6 +46,7 @@ export function DeleteDialogIcon({name, id} : DeleteDialogIconProps) {
           variant="ghost" 
           className="hover:bg-red-500 hover:text-white"
           disabled={deleting}  
+          role="delete-icon"
         >
           <Trash2Icon />
         </Button>

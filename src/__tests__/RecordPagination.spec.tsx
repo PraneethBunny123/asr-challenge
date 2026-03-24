@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react";
-import { RecordsContext } from "@/app/dashboard/context/RecordsContext";
-import { useRecordPagination } from "@/app/dashboard/hooks/useRecordPagination";
-import RecordPagination from "@/app/dashboard/components/RecordPagination";
+import { RecordsContext } from "@/app/(main)/dashboard/context/RecordsContext";
+import { useRecordPagination } from "@/app/(main)/dashboard/hooks/useRecordPagination";
+import RecordPagination from "@/app/(main)/dashboard/components/RecordPagination";
 import React from "react";
 
 function makeContext(overrides: Partial<React.ContextType<typeof RecordsContext>> = {}) {
