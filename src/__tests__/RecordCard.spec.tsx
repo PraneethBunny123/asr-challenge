@@ -1,8 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import RecordCard from "@/app/(main)/dashboard/components/RecordCard";
 import type { RecordItem } from "@/app/(main)/dashboard/types";
-import { useRole } from "@/app/(main)/dashboard/hooks/useRole";
-import { useRecords } from "@/app/(main)/dashboard/hooks/useRecords";
+import { setupMocks } from "./helpers/mockHooks";
 
 vi.mock("@/app/(main)/dashboard/hooks/useRole");
 vi.mock("@/app/(main)/dashboard/hooks/useRecords");
@@ -15,42 +14,7 @@ const sample: RecordItem = {
   version: 1,
 };
 
-const mockDeleteRecord = vi.fn();
-
-function setupMocks(admin = false, reviewer = false) {
-  vi.mocked(useRole).mockReturnValue({
-    role: admin ? "admin" : reviewer ? "reviewer" : "viewer",
-    isViewer: !(admin || reviewer),
-    isReviewer: reviewer,
-    isAdmin: admin,
-    canCreate: admin,
-    canUpdate: admin || reviewer,
-    canDelete: admin,
-  });
-
-  vi.mocked(useRecords).mockReturnValue({
-    records: [],
-    loading: false,
-    error: null,
-    page: 1,
-    limit: 6,
-    totalCount: 0,
-    setPage: vi.fn(),
-    setLimit: vi.fn(),
-    createRecord: vi.fn(),
-    updateRecord: vi.fn(),
-    deleteRecord: mockDeleteRecord,
-    refresh: vi.fn(),
-    history: [],
-    clearHistory: vi.fn(),
-  });
-}
-
 describe("RecordCard", () => {
-  beforeEach(() => {
-    mockDeleteRecord.mockReset();
-  });
-
   it("renders record name and badge", () => {
     setupMocks();
     const onSelect = vi.fn();
