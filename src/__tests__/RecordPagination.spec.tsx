@@ -1,45 +1,13 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react";
-import { RecordsContext } from "@/app/(main)/dashboard/context/RecordsContext";
 import { useRecordPagination } from "@/app/(main)/dashboard/hooks/useRecordPagination";
 import RecordPagination from "@/app/(main)/dashboard/components/RecordPagination";
-import React from "react";
+import { makeWrapper, renderWithContext } from "./helpers/mockHooks";
 
-function makeContext(overrides: Partial<React.ContextType<typeof RecordsContext>> = {}) {
-  return {
-    records: [],
-    loading: false,
-    error: null,
-    page: 1,
-    limit: 6,
-    totalCount: 12,
-    setPage: vi.fn(),
-    setLimit: vi.fn(),
-    updateRecord: vi.fn(),
-    refresh: vi.fn(),
-    history: [],
-    clearHistory: vi.fn(),
-    ...overrides,
-  };
-}
-
-function renderWithContext(ctx: ReturnType<typeof makeContext>) {
-  return render(
-    <RecordsContext.Provider value={ctx}>
-      <RecordPagination />
-    </RecordsContext.Provider>
-  );
-}
 
 describe("useRecordPagination", () => {
   it("computes hasPrev=false on first page", () => {
-    const ctx = makeContext({ page: 1, limit: 6, totalCount: 12 });
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecordsContext.Provider value={ctx}>
-        {children}
-      </RecordsContext.Provider>
-    );
-
+    const wrapper = makeWrapper()
     const { result } = renderHook(() => useRecordPagination(), { wrapper });
 
     expect(result.current.hasPrev).toBe(false);
@@ -48,13 +16,7 @@ describe("useRecordPagination", () => {
   });
 
   it("computes hasNext=false on last page", () => {
-    const ctx = makeContext({ page: 2, limit: 6, totalCount: 12 });
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecordsContext.Provider value={ctx}>
-        {children}
-      </RecordsContext.Provider>
-    );
-
+    const wrapper = makeWrapper({ page: 2 })
     const { result } = renderHook(() => useRecordPagination(), { wrapper });
 
     expect(result.current.hasNext).toBe(false);
@@ -62,11 +24,8 @@ describe("useRecordPagination", () => {
   });
 
   it("calls setPage with page - 1 on goToPrev", () => {
-    const setPage = vi.fn();
-    const ctx = makeContext({ page: 3, totalCount: 30, setPage });
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecordsContext.Provider value={ctx}>{children}</RecordsContext.Provider>
-    );
+    const setPage = vi.fn()
+    const wrapper = makeWrapper({ page: 3, totalCount: 30, setPage })
     const { result } = renderHook(() => useRecordPagination(), { wrapper });
 
     act(() => result.current.goToPrev());
@@ -74,14 +33,8 @@ describe("useRecordPagination", () => {
   });
 
   it("calls setPage with page + 1 on goToNext", () => {
-    const setPage = vi.fn();
-    const ctx = makeContext({ page: 1, totalCount: 30, setPage });
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecordsContext.Provider value={ctx}>
-        {children}
-      </RecordsContext.Provider>
-    );
-
+    const setPage = vi.fn()
+    const wrapper = makeWrapper({ page: 1, setPage })
     const { result } = renderHook(() => useRecordPagination(), { wrapper });
 
     act(() => result.current.goToNext());
@@ -91,25 +44,27 @@ describe("useRecordPagination", () => {
 
 describe("RecordPagination", () => {
   it("renders showing range and page counter", () => {
-    renderWithContext(makeContext({ page: 1, limit: 6, totalCount: 12 }));
+    renderWithContext(<RecordPagination />);
 
     expect(screen.getByText(/Showing 1-6 of 12/i)).toBeInTheDocument();
     expect(screen.getByText("1 / 2")).toBeInTheDocument();
   });
 
   it("disables Prev on page 1", () => {
-    renderWithContext(makeContext({ page: 1, totalCount: 12 }));
+    renderWithContext(<RecordPagination />, { page: 1 });
     expect(screen.getByTestId("pagination-prev")).toBeDisabled();
+    expect(screen.getByTestId("pagination-next")).not.toBeDisabled();
   });
 
   it("disables Next on the last page", () => {
-    renderWithContext(makeContext({ page: 2, limit: 6, totalCount: 12 }));
+    renderWithContext(<RecordPagination />, { page: 2 });
     expect(screen.getByTestId("pagination-next")).toBeDisabled();
+    expect(screen.getByTestId("pagination-prev")).not.toBeDisabled();
   });
 
   it("calls setPage when Next is clicked", () => {
     const setPage = vi.fn();
-    renderWithContext(makeContext({ page: 1, limit: 6, totalCount: 12, setPage }));
+    renderWithContext(<RecordPagination />, { page: 1, setPage });
 
     fireEvent.click(screen.getByTestId("pagination-next"));
     expect(setPage).toHaveBeenCalledWith(2);
@@ -117,14 +72,19 @@ describe("RecordPagination", () => {
 
   it("calls setPage when Prev is clicked", () => {
     const setPage = vi.fn();
-    renderWithContext(makeContext({ page: 2, limit: 6, totalCount: 12, setPage }));
+    renderWithContext(<RecordPagination />, { page: 2, setPage });
 
     fireEvent.click(screen.getByTestId("pagination-prev"));
     expect(setPage).toHaveBeenCalledWith(1);
   });
 
   it("renders nothing when totalCount is 0", () => {
-    const { container } = renderWithContext(makeContext({ page: 1, limit: 6, totalCount: 0 }));
+    const { container } = renderWithContext(<RecordPagination />, { totalCount: 0 });
     expect(container.firstChild).toBeNull();
+  });
+
+  it("shows correct range on middle page", () => {
+    renderWithContext(<RecordPagination />, { page: 2, limit: 4, totalCount: 10 });
+    expect(screen.getByText(/Showing 5-8 of 10/i)).toBeInTheDocument();
   });
 });
