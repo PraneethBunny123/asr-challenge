@@ -59,8 +59,8 @@ export function DeleteDialogIcon({name, id} : DeleteDialogIconProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={handleDelete}>{deleting ? "Deleting..." : "Delete"}</AlertDialogAction>
+          <AlertDialogCancel variant="outline" role="delete-dialog-cancel">Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" role="delete-dialog-delete" onClick={handleDelete}>{deleting ? "Deleting..." : "Delete"}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

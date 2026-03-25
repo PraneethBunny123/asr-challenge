@@ -1,6 +1,8 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import CreateRecordDialog from "@/app/(main)/dashboard/components/CreateRecordDialog";
-import { renderWithContext, mockCreate } from "./helpers/mockHooks";
+import { renderWithContext, mockCreate, setupRoleMocks } from "./helpers/mockHooks";
+
+vi.mock("@/app/(main)/dashboard/hooks/useRole");
 
 const mockOnClose = vi.fn();
 
@@ -122,4 +124,29 @@ describe("CreateRecordDialog", () => {
     fireEvent.click(screen.getByRole("create-record-close-button"));
     expect(mockOnClose).toHaveBeenCalled();
   });
+
+  it("viewer cannot create record", async () => {
+    setupRoleMocks();
+    mockCreate.mockRejectedValue(
+      new Error("You do not have permission to perform this action. Request access from Admin"),
+    );
+
+    renderDialog()
+    
+    fireEvent.change(screen.getByPlaceholderText(/specimen name/i), {
+      target: { value: "Anopheles gambiae" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/description/i), {
+      target: { value: "Collected near riverbank" },
+    });
+    fireEvent.click(screen.getByRole("create-record-button"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("permission-error")).toBeInTheDocument();
+    });
+
+    expect(mockCreate).toHaveBeenCalled();
+    expect(screen.getByText(/do not have permission/i)).toBeInTheDocument();
+
+  })
 });

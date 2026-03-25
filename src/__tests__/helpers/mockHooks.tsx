@@ -62,7 +62,7 @@ export function setupRoleMocks(admin = false, reviewer = false) {
     isViewer: !(admin || reviewer),
     isReviewer: reviewer,
     isAdmin: admin,
-    canCreate: admin,
+    canCreate: admin || reviewer,
     canUpdate: admin || reviewer,
     canDelete: admin,
   });
