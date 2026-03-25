@@ -39,7 +39,7 @@ export default function CreateInput({
               Notes help other reviewers understand decisions.
             </p>
           )}
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} role="create-record-zod-error" />}
         </Field>
       )}
     />

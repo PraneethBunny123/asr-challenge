@@ -68,7 +68,7 @@ export default function CreateRecordDialog({
                 control={form.control}
                 name="name"
                 label="Speciman Name"
-                placeholder="Enter speciman name"
+                placeholder="Enter specimen name"
                 type="input"
               />
               <CreateInput
@@ -96,11 +96,11 @@ export default function CreateRecordDialog({
           )}
 
           <DialogFooter className="mt-6 flex-col sm:flex-row gap-2">
-            <Button type="button" variant="secondary" onClick={() => onClose()} disabled={saving}>
+            <Button type="button" variant="secondary" role="create-record-close-button" onClick={() => onClose()} disabled={saving}>
               Close
             </Button>
 
-            <Button type="submit" variant="default" disabled={saving}>{saving ? "Creating..." : "Create Record"}</Button>
+            <Button type="submit" variant="default" role="create-record-button" disabled={saving}>{saving ? "Creating..." : "Create Record"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

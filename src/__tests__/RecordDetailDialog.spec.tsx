@@ -6,29 +6,11 @@ import {
   VersionConflictApiError,
   RecordNotFoundError,
 } from "@/app/(main)/dashboard/api/apiService";
-import { mockUpdate, mockCreate, mockDelete } from "./helpers/mockHooks";
-import { setupRoleMocks } from "./helpers/mockHooks";
+import { mockUpdate, renderWithContext, setupRoleMocks } from "./helpers/mockHooks";
 
 vi.mock("@/app/(main)/dashboard/hooks/useRole");
 
 const mockOnClose = vi.fn();
-
-const mockContextValue = {
-  records: [],
-  loading: false,
-  error: null,
-  page: 1,
-  limit: 6,
-  totalCount: 0,
-  setPage: vi.fn(),
-  setLimit: vi.fn(),
-  createRecord: mockCreate,
-  updateRecord: mockUpdate,
-  deleteRecord: mockDelete,
-  refresh: vi.fn(),
-  history: [],
-  clearHistory: vi.fn(),
-};
 
 const sampleRecord: RecordItem = {
   id: "1",
@@ -38,6 +20,12 @@ const sampleRecord: RecordItem = {
   version: 1,
 };
 
+function renderDialog(record = sampleRecord) {
+  return renderWithContext(
+    <RecordDetailDialog record={record} onClose={mockOnClose} />,
+  );
+}
+
 describe("RecordDetailDialog dialog flow", () => {
   beforeEach(() => {
     mockUpdate.mockReset();
@@ -45,11 +33,7 @@ describe("RecordDetailDialog dialog flow", () => {
   });
 
   it("blocks save when flagged without note", async () => {
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={sampleRecord} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog()
 
     // Change status to "flagged"
     fireEvent.pointerDown(screen.getByRole("select-trigger"));
@@ -68,12 +52,7 @@ describe("RecordDetailDialog dialog flow", () => {
 
   it("saves successfully when note is provided", async () => {
     mockUpdate.mockResolvedValue(undefined);
-
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={sampleRecord} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog()
 
     // Change status to "flagged"
     fireEvent.pointerDown(screen.getByRole("select-trigger"));
@@ -102,11 +81,7 @@ describe("RecordDetailDialog dialog flow", () => {
     mockUpdate.mockResolvedValue(undefined);
     const recordV3: RecordItem = { ...sampleRecord, version: 3 };
 
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={recordV3} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog(recordV3)
 
     fireEvent.change(screen.getByRole("note-textarea"), {
       target: { value: "Routine check" },
@@ -129,12 +104,7 @@ describe("RecordDetailDialog dialog flow", () => {
       version: 2,
     };
     mockUpdate.mockRejectedValue(new VersionConflictApiError(serverRecord));
-
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={sampleRecord} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog()
 
     fireEvent.click(screen.getByRole("save-button"));
 
@@ -159,11 +129,7 @@ describe("RecordDetailDialog dialog flow", () => {
       .mockRejectedValueOnce(new VersionConflictApiError(serverRecord))
       .mockResolvedValueOnce(undefined);
 
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={sampleRecord} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog()
 
     fireEvent.click(screen.getByRole("save-button"));
 
@@ -187,11 +153,7 @@ describe("RecordDetailDialog dialog flow", () => {
       new RecordNotFoundError("Record not found or has been deleted"),
     );
 
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={sampleRecord} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog()
 
     fireEvent.click(screen.getByRole("save-button"));
 
@@ -213,11 +175,7 @@ describe("RecordDetailDialog dialog flow", () => {
       ),
     );
 
-    render(
-      <RecordsContext.Provider value={mockContextValue}>
-        <RecordDetailDialog record={sampleRecord} onClose={mockOnClose} />
-      </RecordsContext.Provider>,
-    );
+    renderDialog()
 
     fireEvent.click(screen.getByRole("save-button"));
 
