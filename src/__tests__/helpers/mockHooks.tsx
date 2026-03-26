@@ -1,6 +1,7 @@
 import { useRole } from "@/app/(main)/dashboard/hooks/useRole";
 import { useRecords } from "@/app/(main)/dashboard/hooks/useRecords";
 import { RecordsContext } from "@/app/(main)/dashboard/context/RecordsContext";
+import { useSession } from "@/lib/auth-client";
 import { render } from "@testing-library/react";
 
 type OverridesContextValue = Partial<React.ContextType<typeof RecordsContext>>
@@ -80,4 +81,13 @@ export function setupMocks(
   overrides: object = {}) {
   setupRoleMocks(admin, reviewer)
   setupRecordsMocks(overrides)
+}
+
+export function mockSession(role: string | null) {
+  vi.mocked(useSession).mockReturnValue({
+    data: role ? { user: { role } } : null,
+    isPending: false,
+    error: null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 }
