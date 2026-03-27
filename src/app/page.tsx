@@ -30,6 +30,14 @@ const phases = [
   {
     title: "Phase 6: API Enhancements & Error Handling",
     description: "Added POST and DELETE endpoints to support creating and removing records. Implemented a delete action in the UI with a delete icon and added a concurrency check to prevent deleting stale records. Also improved error handling by ensuring validation and server errors are displayed in the correct UI locations, providing clearer feedback to users."
+  },
+  {
+    title: "Phase 7: Roles & Permissions",
+    description: "Implemented role-based access control with three roles: viewer, reviewer, and admin, each with defined permissions for accessing and modifying records. Integrated Better Auth with the admin plugin to manage roles and permissions securely. Built an admin dashboard to view, update, and manage user roles, ensuring controlled access to critical actions across the application."
+  },
+  {
+    title: "Phase 8: Testing & Coverage",
+    description: "Added comprehensive test cases using Vitest for all features introduced after Phase 2, including dialogs, hooks, and API interactions. Implemented mocking strategies for context, hooks, and API services to ensure isolated and reliable tests. Achieved over 90% test coverage while validating edge cases, error handling, and role-based behavior across the application."
   }
 ]
 
@@ -38,7 +46,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-14">
         <p className="text-sm font-medium text-muted-foreground">
-          VectorCam
+          DataSpec Pro
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mt-1">
           Dashboard Workflow
@@ -57,6 +65,8 @@ export default function HomePage() {
           <PhaseCard {...phases[3]}/>
           <PhaseCard {...phases[4]}/>
           <PhaseCard {...phases[5]}/>
+          <PhaseCard {...phases[6]}/>
+          <PhaseCard {...phases[7]}/>
         </section>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -67,7 +77,7 @@ export default function HomePage() {
             Dashboard →
           </Link>
           <p className="text-xs text-muted-foreground">
-            Tip: the mock API is in memory.
+            Tip: Request admin to change role to access all the features
           </p>
         </div>
 

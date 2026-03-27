@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import RecordFilter from "@/app/dashboard/components/RecordFilter";
+import RecordFilter from "@/app/(main)/dashboard/components/RecordFilter";
 
 describe("RecordFilter", () => {
   it("calls onChange with the selected value", async () => {

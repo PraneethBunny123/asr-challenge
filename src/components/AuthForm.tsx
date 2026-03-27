@@ -120,7 +120,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           )}
 
           <Field>
-            <Button type="submit" className="mt-8 w-full" disabled={isSubmitting}>
+            <Button type="submit" className="mt-8 w-full" disabled={isSubmitting} role="auth-form-submit">
               {isSubmitting ? 
                 type === "sign-in" ? "Signing in..." : "Creating account..." : 
                 type === "sign-in" ? "Sign In" : "Sign Up"
@@ -138,6 +138,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           <Link
             href={type === "sign-in" ? "/sign-up" : "/sign-in"}
             className="text-sm cursor-pointer text-md text-gray-600"
+            role="signIn-signUp-link"
           >
             {type === "sign-in" ? "Sign Up" : "Sign In"}
           </Link>
