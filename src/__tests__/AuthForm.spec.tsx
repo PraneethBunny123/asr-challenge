@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AuthForm from "@/components/AuthForm";
 import { signIn, signUp } from "@/lib/auth-client";
@@ -153,7 +154,69 @@ describe("AuthForm - sign-in", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// sign-up
-// ---------------------------------------------------------------------------
-
+describe("AuthForm — sign-up", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+ 
+  it("renders first name, last name, email and password fields", () => {
+    render(<AuthForm type="sign-up" />);
+    expect(screen.getByPlaceholderText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/last name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/enter.*email/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/enter.*password/i)).toBeInTheDocument();
+  });
+ 
+  it("shows validation error when first name is too short", async () => {
+    render(<AuthForm type="sign-up" />);
+    fillSignUp("A"); 
+    fireEvent.click(screen.getByRole("auth-form-submit"));
+ 
+    await waitFor(() => {
+      expect(screen.getByText(/Too small/i)).toBeInTheDocument();
+    });
+    expect(signUp.email).not.toHaveBeenCalled();
+  });
+ 
+  it("calls signUp.email with first + last name concatenated", async () => {
+    mockSignUpSuccess();
+    render(<AuthForm type="sign-up" />);
+    fillSignUp();
+    fireEvent.click(screen.getByRole("auth-form-submit"));
+ 
+    await waitFor(() => {
+      expect(signUp.email).toHaveBeenCalledWith(
+        { email: "jane@example.com", password: "securepassword", name: "Jane Smith" },
+        expect.objectContaining({ onSuccess: expect.any(Function), onError: expect.any(Function) }),
+      );
+    });
+  });
+ 
+  it("redirects to /dashboard after successful sign-up", async () => {
+    mockSignUpSuccess();
+    render(<AuthForm type="sign-up" />);
+    fillSignUp();
+    fireEvent.click(screen.getByRole("auth-form-submit"));
+ 
+    await waitFor(() => {
+      expect(mockLocationHref).toBe("/dashboard");
+    });
+  });
+ 
+  it("shows server error when email already exists", async () => {
+    mockSignUpError("User already exists. Use another email.");
+    render(<AuthForm type="sign-up" />);
+    fillSignUp("Jane", "Smith", "existing@example.com");
+    fireEvent.click(screen.getByRole("auth-form-submit"));
+ 
+    await waitFor(() => {
+      expect(screen.getByText("User already exists. Use another email.")).toBeInTheDocument();
+    });
+    expect(mockLocationHref).toBe("");
+  });
+ 
+  it("has a link back to the sign-in page", () => {
+    render(<AuthForm type="sign-up" />);
+    expect(screen.getByRole("signIn-signUp-link")).toHaveAttribute("href", "/sign-in");
+  });
+});
